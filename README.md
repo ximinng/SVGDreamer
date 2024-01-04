@@ -1,6 +1,7 @@
 # SVGDreamer: Text Guided SVG Generation with Diffusion Model
 
 [![arXiv](https://img.shields.io/badge/arXiv-2312.16476-b31b1b.svg)](https://arxiv.org/abs/2312.16476)
+[![website](https://img.shields.io/badge/website-Gitpage-yellow)](https://ximinng.github.io/SVGDreamer-project/)
 
 ### Code coming soon !!!
 
