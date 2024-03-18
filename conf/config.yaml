@@ -1,0 +1,54 @@
+#-----------------#
+#  Global Config  #
+#-----------------#
+
+# common args
+prompt: ~
+token_ind: 1 # the index of text prompt, from 1
+neg_prompt: ~ # negative prompt
+skip_sive: True # optimize from scratch without SIVE init
+
+# Accelerate config
+state:
+  cpu: False # use cpu
+  mprec: no # mixed precision, choices: 'no', 'fp16', 'bf16'
+
+# Diffusers config
+diffuser:
+  download: False # Set this variable to True the first time it runs
+  force_download: False
+  resume_download: False
+
+# PyDiffVG config
+diffvg:
+  print_timing: False
+
+# reproduction
+seed: 951222
+# multi-run
+multirun: False
+srange: ~ # seed range, example: [100, 100]
+
+# log
+result_path: './workspace'
+save_step: 50
+
+# visual rendering process
+mv: False # make video
+framefreq: 5 # save the image interval
+framerate: 24 # by adjusting the frame rate, you can control the playback speed of the output video
+
+# hydra setting
+hydra:
+  help:
+    # app name, override to match the name your app is known by
+    app_name: 'SVGDreamer'
+  run:
+    # output directory for normal runs
+    # warning: make sure that the L53-55 of './libs/model_state.py' and 'dir' are modified together
+    dir: ./${result_path}/SVGDreamer-${now:%Y-%m-%d-%H-%M}
+
+# default settings
+defaults:
+  - _self_
+  - x: ~
