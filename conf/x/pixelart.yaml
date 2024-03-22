@@ -79,8 +79,8 @@ sive:
     use_distance_weighted_loss: False
     xing_loss_weight: 0.01
   tog: # for refinement
-    reinit: True # if False, use fg params to init content
-    num_iter: 1000
+    reinit: False # if False, use fg params to init content
+    num_iter: 10
     # optim
     lr_schedule: False # enable lr_scheduler or not
     # loss
@@ -99,7 +99,7 @@ coord_init: 'random' # 'random', 'naive', 'sparse' place the first control point
 grid: 50 # divide the canvas into n grids
 path_reinit: # reinitializing paths
   use: True
-  freq: 100 # every 50 iterations
+  freq: 100 # every n iterations
   stop_step: 1000 # for VPSD fine-tuning
   opacity_threshold: 0.05
   area_threshold: 64
@@ -135,6 +135,7 @@ vpsd_model_cfg:
 
 # VPSD setting
 vpsd:
+  use: True
   type: 'vpsd'
   n_particle: 6 # 4, 8, 16
   vsd_n_particle: 4 # the batch size of particles

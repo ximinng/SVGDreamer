@@ -18,6 +18,7 @@ from torch.optim.lr_scheduler import LambdaLR
 
 from svgdreamer.diffvg_warp import DiffVGState
 from svgdreamer.libs import get_optimizer
+from svgdreamer.utils import AnyPath
 
 
 class Painter(DiffVGState):
@@ -83,169 +84,85 @@ class Painter(DiffVGState):
         else:
             raise NotImplementedError(f"'{init_type}' is not support.")
 
-    def init_image(self, stage=0, num_paths=0):
-        self.cur_shapes, self.cur_shape_groups = [], []
-
-        # or init svg by PyDiffVG
+    def init_image(self, num_paths=0):
         if self.style in ['pixelart', 'low-poly']:  # update path definition
             num_paths = self.n_grid
 
-        if stage > 0:
-            # Noting: if multi stages training than add new strokes on existing ones
-            # don't optimize on previous strokes
-            self.optimize_flag = [False for i in range(len(self.shapes))]
-            for i in range(num_paths):
-                if self.style == 'iconography':
-                    path = self.get_path()
+        num_paths_exists = 0
+        if self.path_svg is not None and pathlib.Path(self.path_svg).exists():
+            print(f"-> init svg from `{self.path_svg}` ...")
+
+            self.canvas_width, self.canvas_height, self.shapes, self.shape_groups = self.load_svg(self.path_svg)
+            # if you want to add more strokes to existing ones and optimize on all of them
+            num_paths_exists = len(self.shapes)
+
+        for i in range(num_paths_exists, num_paths):
+            if self.style == 'iconography':
+                path = self.get_path()
+                self.shapes.append(path)
+
+                wref, href = self.color_ref
+                wref = max(0, min(int(wref), self.canvas_width - 1))
+                href = max(0, min(int(href), self.canvas_height - 1))
+                fill_color_init = list(self.target_img[0, :, href, wref]) + [1.]
+                path_group = pydiffvg.ShapeGroup(
+                    shape_ids=torch.tensor([self.strokes_counter - 1]),
+                    fill_color=torch.FloatTensor(fill_color_init),
+                    stroke_color=None
+                )
+                self.shape_groups.append(path_group)
+
+            elif self.style in ['pixelart', 'low-poly']:
+                for j in range(num_paths):
+                    path = self.get_path(coord=[i, j])
                     self.shapes.append(path)
-                    self.cur_shapes.append(path)
 
                     fill_color_init = torch.FloatTensor(np.random.uniform(size=[4]))
                     fill_color_init[-1] = 1.0
                     path_group = pydiffvg.ShapeGroup(
-                        shape_ids=torch.tensor([self.strokes_counter - 1]),
+                        shape_ids=torch.LongTensor([i * num_paths + j]),
                         fill_color=fill_color_init,
-                        stroke_color=None
+                        stroke_color=None,
                     )
                     self.shape_groups.append(path_group)
-                    self.cur_shape_groups.append(path_group)
-                    self.optimize_flag.append(True)
 
-                elif self.style in ['pixelart', 'low-poly']:
-                    for j in range(num_paths):
-                        path = self.get_path(coord=[i, j])
-                        self.shapes.append(path)
-                        self.cur_shapes.append(path)
+            elif self.style in ['sketch', 'ink']:
+                path = self.get_path()
+                self.shapes.append(path)
 
-                        fill_color_init = torch.FloatTensor(np.random.uniform(size=[4]))
-                        fill_color_init[-1] = 1.0
-                        path_group = pydiffvg.ShapeGroup(
-                            shape_ids=torch.LongTensor([i * num_paths + j]),
-                            fill_color=fill_color_init,
-                            stroke_color=None,
-                        )
-                        self.shape_groups.append(path_group)
-                        self.cur_shape_groups.append(path_group)
-                        self.optimize_flag.append(True)
+                stroke_color_init = [0.0, 0.0, 0.0] + [random.random()]
+                stroke_color_init = torch.FloatTensor(stroke_color_init)
 
-                elif self.style in ['ink', 'sketch']:
-                    path = self.get_path()
-                    self.shapes.append(path)
-                    self.cur_shapes.append(path)
+                path_group = pydiffvg.ShapeGroup(
+                    shape_ids=torch.tensor([len(self.shapes) - 1]),
+                    fill_color=None,
+                    stroke_color=stroke_color_init
+                )
+                self.shape_groups.append(path_group)
 
-                    stroke_color_init = [0.0, 0.0, 0.0] + [random.random()]
-                    stroke_color_init = torch.FloatTensor(stroke_color_init)
-                    path_group = pydiffvg.ShapeGroup(
-                        shape_ids=torch.tensor([len(self.shapes) - 1]),
-                        fill_color=None,
-                        stroke_color=stroke_color_init
-                    )
-                    self.shape_groups.append(path_group)
-                    self.cur_shape_groups.append(path_group)
+            elif self.style in ['painting']:
+                path = self.get_path()
+                self.shapes.append(path)
 
-                elif self.style == 'painting':
-                    path = self.get_path()
-                    self.shapes.append(path)
-                    self.cur_shapes.append(path)
-
+                if self.color_ref is None:
+                    stroke_color_val = np.random.uniform(size=[4])
+                    stroke_color_val[-1] = 1.0
+                    stroke_color_init = torch.FloatTensor(stroke_color_val)
+                else:
                     wref, href = self.color_ref
                     wref = max(0, min(int(wref), self.canvas_width - 1))
                     href = max(0, min(int(href), self.canvas_height - 1))
                     stroke_color_init = list(self.target_img[0, :, href, wref]) + [1.]
-                    path_group = pydiffvg.ShapeGroup(
-                        shape_ids=torch.tensor([len(self.shapes) - 1]),
-                        fill_color=None,
-                        stroke_color=torch.FloatTensor(stroke_color_init)
-                    )
-                    self.shape_groups.append(path_group)
-                    self.cur_shape_groups.append(path_group)
-        else:
-            num_paths_exists = 0
-            if self.path_svg is not None and pathlib.Path(self.path_svg).exists():
-                print(f"-> init svg from `{self.path_svg}` ...")
-
-                self.canvas_width, self.canvas_height, self.shapes, self.shape_groups = self.load_svg(self.path_svg)
-                # if you want to add more strokes to existing ones and optimize on all of them
-                num_paths_exists = len(self.shapes)
-
-                self.cur_shapes = self.shapes
-                self.cur_shape_groups = self.shape_groups
-
-            for i in range(num_paths_exists, num_paths):
-                if self.style == 'iconography':
-                    path = self.get_path()
-                    self.shapes.append(path)
-                    self.cur_shapes.append(path)
-
-                    wref, href = self.color_ref
-                    wref = max(0, min(int(wref), self.canvas_width - 1))
-                    href = max(0, min(int(href), self.canvas_height - 1))
-                    fill_color_init = list(self.target_img[0, :, href, wref]) + [1.]
-                    path_group = pydiffvg.ShapeGroup(
-                        shape_ids=torch.tensor([self.strokes_counter - 1]),
-                        fill_color=torch.FloatTensor(fill_color_init),
-                        stroke_color=None
-                    )
-                    self.shape_groups.append(path_group)
-                    self.cur_shape_groups.append(path_group)
-
-                elif self.style in ['pixelart', 'low-poly']:
-                    for j in range(num_paths):
-                        path = self.get_path(coord=[i, j])
-                        self.shapes.append(path)
-                        self.cur_shapes.append(path)
-
-                        fill_color_init = torch.FloatTensor(np.random.uniform(size=[4]))
-                        fill_color_init[-1] = 1.0
-                        path_group = pydiffvg.ShapeGroup(
-                            shape_ids=torch.LongTensor([i * num_paths + j]),
-                            fill_color=fill_color_init,
-                            stroke_color=None,
-                        )
-                        self.shape_groups.append(path_group)
-                        self.cur_shape_groups.append(path_group)
-
-                elif self.style in ['sketch', 'ink']:
-                    path = self.get_path()
-                    self.shapes.append(path)
-                    self.cur_shapes.append(path)
-
-                    stroke_color_init = [0.0, 0.0, 0.0] + [random.random()]
                     stroke_color_init = torch.FloatTensor(stroke_color_init)
 
-                    path_group = pydiffvg.ShapeGroup(
-                        shape_ids=torch.tensor([len(self.shapes) - 1]),
-                        fill_color=None,
-                        stroke_color=stroke_color_init
-                    )
-                    self.shape_groups.append(path_group)
-                    self.cur_shape_groups.append(path_group)
+                path_group = pydiffvg.ShapeGroup(
+                    shape_ids=torch.tensor([len(self.shapes) - 1]),
+                    fill_color=None,
+                    stroke_color=stroke_color_init
+                )
+                self.shape_groups.append(path_group)
 
-                elif self.style in ['painting']:
-                    path = self.get_path()
-                    self.shapes.append(path)
-                    self.cur_shapes.append(path)
-
-                    if self.color_ref is None:
-                        stroke_color_val = np.random.uniform(size=[4])
-                        stroke_color_val[-1] = 1.0
-                        stroke_color_init = torch.FloatTensor(stroke_color_val)
-                    else:
-                        wref, href = self.color_ref
-                        wref = max(0, min(int(wref), self.canvas_width - 1))
-                        href = max(0, min(int(href), self.canvas_height - 1))
-                        stroke_color_init = list(self.target_img[0, :, href, wref]) + [1.]
-                        stroke_color_init = torch.FloatTensor(stroke_color_init)
-
-                    path_group = pydiffvg.ShapeGroup(
-                        shape_ids=torch.tensor([len(self.shapes) - 1]),
-                        fill_color=None,
-                        stroke_color=stroke_color_init
-                    )
-                    self.shape_groups.append(path_group)
-                    self.cur_shape_groups.append(path_group)
-
-            self.optimize_flag = [True for i in range(len(self.shapes))]
+        self.optimize_flag = [True for i in range(len(self.shapes))]
 
         img = self.get_image()
         return img
@@ -370,22 +287,20 @@ class Painter(DiffVGState):
                     group.fill_color.data.clamp_(0.0, 1.0)  # clip rgba
 
     def reinitialize_paths(self,
-                           reinit_path: bool = False,
-                           opacity_threshold: float = None,
-                           area_threshold: float = None,
-                           fpath: pathlib.Path = None):
+                           infos: str,
+                           fpath: AnyPath,
+                           opacity_threshold: float = 0.01,
+                           area_threshold: float = 32):
         """
         reinitialize paths, also known as 'Reinitializing paths' in VectorFusion paper.
+        Notes: Since VF is not open source, this is the version I implemented.
 
         Args:
-            reinit_path: whether to reinitialize paths or not.
             opacity_threshold: Threshold of opacity.
             area_threshold: Threshold of the closed polygon area.
             fpath: The path to save the reinitialized SVG.
         """
-        if not reinit_path:
-            return
-        if self.style not in ['iconography', 'low-poly', 'painting']:
+        if self.style not in ['iconography', 'low-poly', 'painting', 'ink']:
             return
 
         def get_keys_below_threshold(my_dict, threshold):
@@ -398,66 +313,103 @@ class Painter(DiffVGState):
             # re-init by opacity_threshold
             if opacity_threshold != 0 and opacity_threshold is not None:
                 opacity_record_ = {group.shape_ids.item(): group.fill_color[-1].item()
-                                   for group in self.cur_shape_groups}
-                # print("-> opacity_record: ", opacity_record_)
-                print("-> opacity_record: ", [f"{k}: {v:.3f}" for k, v in opacity_record_.items()])
+                                   for group in self.shape_groups}
                 select_path_ids_by_opc = get_keys_below_threshold(opacity_record_, opacity_threshold)
-                print("select_path_ids_by_opc: ", select_path_ids_by_opc)
+
+                if len(select_path_ids_by_opc) > 0:
+                    print("-> opacity_record: ", [f"{k}: {v:.3f}" for k, v in opacity_record_.items()])
+                    print("select_path_ids_by_opc: ", select_path_ids_by_opc)
+                else:
+                    stats_np = np.array(list(opacity_record_.values()))
+                    print(f"-> opacity_record: min: {stats_np.min()}, mean: {stats_np.mean()}, max: {stats_np.max()}")
 
             # remove path by area_threshold
             if area_threshold != 0 and area_threshold is not None:
-                area_records = [Polygon(shape.points.detach().cpu().numpy()).area for shape in self.cur_shapes]
-                # print("-> area_records: ", area_records)
-                print("-> area_records: ", ['%.2f' % i for i in area_records])
-                for i, shape in enumerate(self.cur_shapes):
+                area_records = [Polygon(shape.points.detach().cpu().numpy()).area for shape in self.shapes]
+                for i, shape in enumerate(self.shapes):
                     points_ = shape.points.detach().cpu().numpy()
                     if Polygon(points_).area < area_threshold:
                         select_path_ids_by_area.append(shape.id)
-                print("select_path_ids_by_area: ", select_path_ids_by_area)
 
-        elif self.style in ['painting']:
+                if len(select_path_ids_by_area) > 0:
+                    print("-> area_records: ", ['%.2f' % i for i in area_records])
+                    print("select_path_ids_by_area: ", select_path_ids_by_area)
+                else:
+                    stats_np = np.array(area_records)
+                    print(f"-> area_records: min: {stats_np.min()}, mean: {stats_np.mean()}, max: {stats_np.max()}")
+
+        elif self.style in ['painting', 'ink']:
             # re-init by opacity_threshold
             if opacity_threshold != 0 and opacity_threshold is not None:
                 opacity_record_ = {group.shape_ids.item(): group.stroke_color[-1].item()
-                                   for group in self.cur_shape_groups}
-                # print("-> opacity_record: ", opacity_record_)
-                print("-> opacity_record: ", [f"{k}: {v:.3f}" for k, v in opacity_record_.items()])
+                                   for group in self.shape_groups}
                 select_path_ids_by_opc = get_keys_below_threshold(opacity_record_, opacity_threshold)
-                print("select_path_ids_by_opc: ", select_path_ids_by_opc)
 
-        # re-init paths
+                if len(select_path_ids_by_opc) > 0:
+                    print("-> opacity_record: ", [f"{k}: {v:.3f}" for k, v in opacity_record_.items()])
+                    print("select_path_ids_by_opc: ", select_path_ids_by_opc)
+                else:
+                    stats_np = np.array(list(opacity_record_.values()))
+                    print(f"-> opacity_record: min: {stats_np.min()}, mean: {stats_np.mean()}, max: {stats_np.max()}")
+
+        # reinitialize paths
+        extra_point_params, extra_color_params, extra_width_params = [], [], []
         reinit_union = list(set(select_path_ids_by_opc + select_path_ids_by_area))
         if len(reinit_union) > 0:
-            for i, path in enumerate(self.cur_shapes):
+            for i, path in enumerate(self.shapes):
                 if path.id in reinit_union:
                     coord = [i, i] if self.style == 'low-poly' else None
-                    self.cur_shapes[i] = self.get_path(coord=coord)
-            for i, group in enumerate(self.cur_shape_groups):
+                    self.shapes[i] = self.get_path(coord=coord)
+                    # update coords
+                    self.shapes[i].points.requires_grad = True
+                    extra_point_params.append(self.shapes[i].points)
+                    if self.style == 'painting':
+                        self.shapes[i].stroke_width.requires_grad = True
+                        extra_width_params.append(self.shapes[i].stroke_width)
+
+            for i, group in enumerate(self.shape_groups):
                 shp_ids = group.shape_ids.cpu().numpy().tolist()
                 if set(shp_ids).issubset(reinit_union):
                     if self.style in ['iconography', 'low-poly']:
                         fill_color_init = torch.FloatTensor(np.random.uniform(size=[4]))
                         fill_color_init[-1] = 1.0
-                        self.cur_shape_groups[i] = pydiffvg.ShapeGroup(
+                        self.shape_groups[i] = pydiffvg.ShapeGroup(
                             shape_ids=torch.tensor(list(shp_ids)),
                             fill_color=fill_color_init,
                             stroke_color=None)
+                        # requires gradients
+                        self.shape_groups[i].fill_color.requires_grad = True
+                        extra_color_params.append(self.shape_groups[i].fill_color)
                     elif self.style in ['painting']:
                         stroke_color_init = torch.FloatTensor(np.random.uniform(size=[4]))
                         stroke_color_init[-1] = 1.0
-                        self.cur_shape_groups[i] = pydiffvg.ShapeGroup(
+                        self.shape_groups[i] = pydiffvg.ShapeGroup(
                             shape_ids=torch.tensor([len(self.shapes) - 1]),
                             fill_color=None,
-                            stroke_color=stroke_color_init
-                        )
+                            stroke_color=stroke_color_init)
+                        # requires gradients
+                        self.shape_groups[i].stroke_color.requires_grad = True
+                        extra_color_params.append(self.shape_groups[i].stroke_color)
+                    elif self.style in ['ink']:
+                        stroke_color_init = [0.0, 0.0, 0.0] + [random.random()]
+                        stroke_color_init = torch.FloatTensor(stroke_color_init)
+                        self.shape_groups[i] = pydiffvg.ShapeGroup(
+                            shape_ids=torch.tensor([len(self.shapes) - 1]),
+                            fill_color=None,
+                            stroke_color=stroke_color_init)
+                        # requires gradients
+                        self.shape_groups[i].stroke_color.requires_grad = True
+                        extra_color_params.append(self.shape_groups[i].stroke_color)
+
             # save reinit svg
             self.pretty_save_svg(fpath)
 
-        print("-" * 40)
+        print(f"{'-' * 30} {infos} Reinitializing Paths End {'-' * 30}\n")
+        return extra_point_params, extra_color_params, extra_width_params
 
     def calc_distance_weight(self, loss_weight_keep):
-        shapes_forsdf = copy.deepcopy(self.cur_shapes)
-        shape_groups_forsdf = copy.deepcopy(self.cur_shape_groups)
+        shapes_forsdf = copy.deepcopy(self.shapes)
+        shape_groups_forsdf = copy.deepcopy(self.shape_groups)
         for si in shapes_forsdf:
             si.stroke_width = torch.FloatTensor([0]).to(self.device)
         for sg_idx, sgi in enumerate(shape_groups_forsdf):
@@ -487,7 +439,7 @@ class Painter(DiffVGState):
 
     def set_point_parameters(self, id_delta=0):
         self.point_vars = []
-        for i, path in enumerate(self.cur_shapes):
+        for i, path in enumerate(self.shapes):
             path.id = i + id_delta  # set point id
             path.points.requires_grad = True
             self.point_vars.append(path.points)
@@ -497,7 +449,7 @@ class Painter(DiffVGState):
 
     def set_color_parameters(self):
         self.color_vars = []
-        for i, group in enumerate(self.cur_shape_groups):
+        for i, group in enumerate(self.shape_groups):
             if group.fill_color is not None:
                 group.fill_color.requires_grad = True
                 self.color_vars.append(group.fill_color)
@@ -693,8 +645,8 @@ class PainterOptimizer:
             print(f"{schedule_cfg.name} is not support.")
             self.lr_lambda = None
 
-        if style in ['pixelart', 'low-poly']:
-            pass
+        if style in ['pixelart']:
+            self.lr_lambda = None
 
         self.point_optimizer = None
         self.color_optimizer = None
@@ -731,6 +683,14 @@ class PainterOptimizer:
         # lr schedule
         if self.lr_lambda is not None and self.optim_point:
             self.point_scheduler = LambdaLR(self.point_optimizer, lr_lambda=self.lr_lambda, last_epoch=-1)
+
+    def add_params(self, point_params, color_params, width_params):
+        if len(point_params) > 0:
+            self.point_optimizer.add_param_group({f'params': point_params})
+        if len(color_params) > 0:
+            self.color_optimizer.add_param_group({f'params': color_params})
+        if len(width_params) > 0:
+            self.width_optimizer.add_param_group({f'params': width_params})
 
     def update_lr(self):
         if self.point_scheduler is not None:

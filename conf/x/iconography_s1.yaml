@@ -1,7 +1,7 @@
 image_size: 600 # canvas size
 path_svg: ~  # if you want to load a svg file and train from it
 color_init: 'rand' # if skip_live=True, then use color_init to init target_img
-style: "low-poly" # "iconography", "pixelart", "low-poly", "painting", "sketch", "ink"
+style: "iconography" # "iconography", "pixelart", "low-poly", "painting", "sketch", "ink"
 
 # stable diffusion in SIVE stage
 sive_model_cfg:
@@ -40,7 +40,7 @@ sive:
     attn_coeff: 1.0 # attn fusion, w * cross-attn + (1-w) * self-attn
   bg:
     style: "iconography" # 'iconography' ,"pixelart", "sketch", 'painting', 'ink'
-    num_iter: 10
+    num_iter: 500
     num_paths: 256
     path_schedule: 'repeat' # 'repeat', 'list'
     schedule_each: 128
@@ -60,7 +60,7 @@ sive:
     xing_loss_weight: 0.001
   fg:
     style: "iconography" # 'iconography' ,"pixelart", "sketch", 'painting', 'ink'
-    num_iter: 10
+    num_iter: 500
     num_paths: 256 # number of strokes
     path_schedule: 'repeat' # 'repeat', 'list'
     schedule_each: 128
@@ -79,14 +79,8 @@ sive:
     use_distance_weighted_loss: False
     xing_loss_weight: 0.01
   tog: # for refinement
-    reinit: False # if False, use fg params to init content
-    num_iter: 10
-    # optim
-    lr_schedule: False # enable lr_scheduler or not
-    # loss
-    bg_lam: 0
-    fg_lam: 1
-    xing_loss_weight: 0
+    reinit: True # if False, use fg params to init content
+    num_iter: 1000
 
 # VPSD primitives
 num_paths: 512 # number of strokes
@@ -96,10 +90,10 @@ num_segments: 4
 segment_init: 'circle' # 'random'
 radius: 20
 coord_init: 'random' # 'random', 'naive', 'sparse' place the first control point
-grid: 30 # divide the canvas into n grids
+grid: 50 # divide the canvas into n grids
 path_reinit: # reinitializing paths
   use: True
-  freq: 100 # every n iterations
+  freq: 50 # every n iterations
   stop_step: 1000 # for VPSD fine-tuning
   opacity_threshold: 0.05
   area_threshold: 64
@@ -135,12 +129,12 @@ vpsd_model_cfg:
 
 # VPSD setting
 vpsd:
-  use: True
+  use: False
   type: 'vpsd'
-  n_particle: 6 # 4, 8, 16
+  n_particle: 4 # 4, 8, 16
   vsd_n_particle: 4 # the batch size of particles
   particle_aug: False # do data enhancement for the input particles
-  num_iter: 1500 # total iterations
+  num_iter: 1 # total iterations
   guidance_scale: 7.5 # CFG value
   grad_scale: 1.0 # increase or decrease the gradient
   grad_clip_val: ~ # eg: 10, clip the gradient of VPSD

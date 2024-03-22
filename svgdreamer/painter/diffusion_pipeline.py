@@ -279,6 +279,7 @@ class DiffusionPipeline(torch.nn.Module):
 
         # 7. Denoising loop
         num_warmup_steps = len(timesteps) - num_inference_steps * self.scheduler.order
+        self.sd_pipeline.set_progress_bar_config(desc='DDPM Sampling')
         with self.sd_pipeline.progress_bar(total=num_inference_steps) as progress_bar:
             for i, t in enumerate(timesteps):
                 # expand the latents if we are doing classifier free guidance

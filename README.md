@@ -9,8 +9,6 @@
 This repository contains our official implementation of the CVPR 2024 paper: SVGDreamer: Text-Guided SVG Generation with
 Diffusion Model. It can generate high-quality SVGs based on text prompts.
 
-[//]: # (> Project Page: https://ximinng.github.io/SVGDreamer-project/)
-
 ![title](./assets/illustrate.png)
 ![title](./assets/teaser_svg_asset.png)
 
@@ -22,7 +20,7 @@ Diffusion Model. It can generate high-quality SVGs based on text prompts.
   a novel text-guided vector graphics synthesis method. This method considers both the editing of vector graphics and
   the quality of the synthesis.
 
-## 🔥Quickstart
+## 🔥 Quickstart
 
 Before running the code, download the stable diffusion model. Append `diffuser.download=True` to the end of the script.
 
@@ -31,7 +29,7 @@ Before running the code, download the stable diffusion model. Append `diffuser.d
 **Script:**
 
 ```shell
-python svgdreamer.py x=iconography skip_sive=False "prompt='an image of Batman. full body action pose, complete detailed body. white background. empty background, high quality, 4K, ultra realistic'" token_ind=4 x.vpsd.t_schedule='randint' result_path='./logs/batman' multirun=True mv=True
+python svgdreamer.py x=iconography skip_sive=False "prompt='an image of Batman. full body action pose, complete detailed body. white background. empty background, high quality, 4K, ultra realistic'" token_ind=4 x.vpsd.t_schedule='randint' result_path='./logs/batman' multirun=True
 ```
 
 - `x=iconography`(str): style configs
@@ -41,10 +39,20 @@ python svgdreamer.py x=iconography skip_sive=False "prompt='an image of Batman. 
 - `multirun`(bool): run the script multiple times with different random seeds
 - `mv`(bool): save the intermediate results of the run and record the video (This increases the run time)
 
-**More parameters in `./conf/x/style.yaml`, you can modify these parameters from the command line. For
-example, append `x.vpsd.n_particle=4` to the end of the script.**
+More parameters in `./conf/x/style.yaml`, you can modify these parameters from the command line. For example,
+append `x.vpsd.n_particle=4` to the end of the script.
+
+### SIVE
+
+**Script:**
+
+```shell
+python svgdreamer.py x=iconography_s1 skip_sive=False "prompt='a man in an astronaut suit walking across a desert, inspired by James Gurney, space art, planet mars in the background, banner, floating beside planets'" token_ind=5 x.vpsd.t_schedule='randint' result_path='./logs/astronaut_sive' multirun=True
+```
 
 ### VPSD
+
+#### Case 1
 
 **Prompt:** Sydney opera house. oil painting. by Van Gogh <br/>
 **Style:** iconography <br/>
@@ -60,7 +68,7 @@ example, append `x.vpsd.n_particle=4` to the end of the script.**
 **Script:**
 
 ```shell
-python svgdreamer.py x=iconography "prompt='Sydney opera house. oil painting. by Van Gogh'" result_path='./logs/SydneyOperaHouse-OilPainting' 
+python svgdreamer.py x=iconography "prompt='Sydney opera house. oil painting. by Van Gogh'" result_path='./logs/SydneyOperaHouse-OilPainting'
 ```
 
 **Other Styles:**
@@ -86,6 +94,7 @@ python svgdreamer.py x=ink "prompt='Big Wild Goose Pagoda. ink style. Minimalist
 ## 📋 TODO
 
 - [x] Release the code
+- [ ] Add docker image
 
 ## :books: Acknowledgement
 

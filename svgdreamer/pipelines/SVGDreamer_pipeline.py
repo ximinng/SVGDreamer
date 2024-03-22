@@ -6,6 +6,8 @@ import pathlib
 from PIL import Image
 from typing import AnyStr, Union, Tuple, List
 
+import cv2
+import cairosvg
 import omegaconf
 import numpy as np
 from tqdm.auto import tqdm
@@ -55,6 +57,10 @@ class SVGDreamerPipeline(ModelState):
         # bg dir
         self.bg_png_logs_dir = self.result_path / "SIVE_bg_png_logs"
         self.bg_svg_logs_dir = self.result_path / "SIVE_bg_svg_logs"
+        # refine
+        self.refine_dir = self.result_path / "SIVE_refine_logs"
+        self.refine_png_dir = self.result_path / "SIVE_refine_png_logs"
+        self.refine_svg_dir = self.result_path / "SIVE_refine_svg_logs"
         """VPSD log dirs"""
         self.ft_png_logs_dir = self.result_path / "VPSD_png_logs"
         self.ft_svg_logs_dir = self.result_path / "VPSD_svg_logs"
@@ -62,7 +68,8 @@ class SVGDreamerPipeline(ModelState):
         self.ft_init_dir = self.result_path / "VPSD_init_logs"
         self.phi_samples_dir = self.result_path / "VPSD_phi_sampling_logs"
 
-        mkdir([self.sive_attn_dir, self.mask_dir, self.fg_png_logs_dir, self.fg_svg_logs_dir, self.sive_final_dir,
+        mkdir([self.sive_attn_dir, self.mask_dir, self.fg_png_logs_dir, self.fg_svg_logs_dir,
+               self.sive_final_dir, self.refine_dir, self.refine_png_dir, self.refine_svg_dir,
                self.bg_png_logs_dir, self.bg_svg_logs_dir, self.sive_init_dir, self.reinit_dir,
                self.ft_init_dir, self.phi_samples_dir, self.ft_png_logs_dir, self.ft_svg_logs_dir])
 
@@ -96,21 +103,24 @@ class SVGDreamerPipeline(ModelState):
         if self.args.skip_sive:
             # mode 1: optimization with VPSD from scratch
             self.print("optimization with VPSD from scratch...")
-            final_svg_path = None
+            input_svg_path: AnyPath = None
+            input_images = None
         elif target_file is not None:
             # mode 2: load the SVG file and use VPSD finetune it (skip SIVE)
             assert pathlib.Path(target_file).exists() and is_valid_svg(target_file)
             self.print(f"load svg from {target_file} ...")
             self.print(f"SVG fine-tuning via VPSD...")
-            final_svg_path = target_file
+            input_svg_path: AnyPath = target_file
+            img_path = (self.result_path / "init_image.png").as_posix()
+            cairosvg.svg2png(url=input_svg_path.as_posix(), write_to=img_path)
+            input_images = self.target_file_preprocess(img_path)
             self.x_cfg.coord_init = 'sparse'
         else:
             # mode 3: SIVE + VPSD
-            final_svg_path = self.SIVE_stage(text_prompt)
-            self.x_cfg.path_svg = final_svg_path
-            self.print("\n SVG fine-tuning via VPSD...")
+            input_svg_path, input_images = self.SIVE_stage(text_prompt)
+            self.print("SVG fine-tuning via VPSD...")
 
-        self.VPSD_stage(text_prompt, final_svg_path)
+        self.VPSD_stage(text_prompt, init_svg_path=input_svg_path, init_image=input_images)
         self.close(msg="painterly rendering complete.")
 
     def SIVE_stage(self, text_prompt: str):
@@ -118,6 +128,7 @@ class SVGDreamerPipeline(ModelState):
         pipeline = DiffusionPipeline(self.x_cfg.sive_model_cfg, self.args.diffuser, self.device)
 
         merged_svg_paths = []
+        merged_images = []
         for i in range(self.vpsd_cfg.n_particle):
             select_sample_path = self.result_path / f'select_sample_{i}.png'
 
@@ -170,16 +181,38 @@ class SVGDreamerPipeline(ModelState):
                 output_svg_path=merged_svg_path.as_posix(),
                 out_size=(self.im_size, self.im_size)
             )
-            merged_svg_paths.append(merged_svg_path)
 
+            # foreground and background refinement
+            # Note: you are not allowed to add further paths here
+            if self.sive_cfg.tog.reinit:
+                self.print("-> enable vector graphic refinement:")
+                merged_svg_path = self.refine_rendering(tag=f'{i}_refine',
+                                                        prompt=text_prompt,
+                                                        target_img=select_img,
+                                                        canvas_size=(self.im_size, self.im_size),
+                                                        render_cfg=self.sive_cfg.tog,
+                                                        optim_cfg=self.sive_optim,
+                                                        init_svg_path=merged_svg_path)
+
+            # svg-to-png, to tensor
+            merged_png_path = self.result_path / f'SIVE_render_final_{i}.png'
+            cairosvg.svg2png(url=merged_svg_path.as_posix(), write_to=merged_png_path.as_posix())
+
+            # collect paths
+            merged_svg_paths.append(merged_svg_path)
+            merged_images.append(self.target_file_preprocess(merged_png_path))
             # empty attention record
             controller.reset()
+
+            self.print(f"Vector Particle {i} Rendering End...\n")
 
         # free the VRAM
         del pipeline
         torch.cuda.empty_cache()
+        # update paths
+        self.x_cfg.num_paths = self.sive_cfg.bg.num_paths + self.sive_cfg.fg.num_paths
 
-        return merged_svg_paths
+        return merged_svg_paths, merged_images
 
     def component_rendering(self,
                             tag: str,
@@ -329,7 +362,81 @@ class SVGDreamerPipeline(ModelState):
 
         return final_svg_fpth
 
-    def VPSD_stage(self, text_prompt: AnyStr, init_svg_path: Union[List[AnyPath], AnyPath] = None):
+    def refine_rendering(self,
+                         tag: str,
+                         prompt: str,
+                         target_img: torch.Tensor,
+                         canvas_size: Tuple[int, int],
+                         render_cfg: omegaconf.DictConfig,
+                         optim_cfg: omegaconf.DictConfig,
+                         init_svg_path: str):
+        # init renderer
+        content_renderer = CompPainter(self.style,
+                                       target_img,
+                                       path_svg=init_svg_path,
+                                       canvas_size=canvas_size,
+                                       device=self.device)
+        # init graphic
+        img = content_renderer.init_image()
+        plot_img(img, self.refine_dir, fname=f"{tag}_before_refined")
+
+        n_iter = render_cfg.num_iter
+        # build painter optimizer
+        optimizer = CompPainterOptimizer(content_renderer, self.style, n_iter, optim_cfg)
+        # init optimizer
+        optimizer.init_optimizers()
+
+        print(f"=> n_point: {len(content_renderer.get_point_params())}, "
+              f"n_width: {len(content_renderer.get_width_params())}, "
+              f"n_color: {len(content_renderer.get_color_params())}")
+
+        step = 0
+        with tqdm(initial=step, total=n_iter, disable=not self.accelerator.is_main_process) as pbar:
+            for t in range(n_iter):
+                raster_img = content_renderer.get_image(step=t).to(self.device)
+
+                loss_recon = F.mse_loss(raster_img, target_img)
+
+                lr_str = ""
+                for k, lr in optimizer.get_lr().items():
+                    lr_str += f"{k}_lr: {lr:.4f}, "
+
+                pbar.set_description(lr_str + f"L_refine: {loss_recon.item():.4f}")
+
+                # optimization
+                optimizer.zero_grad_()
+                loss_recon.backward()
+                optimizer.step_()
+
+                content_renderer.clip_curve_shape()
+
+                if step % self.args.save_step == 0 and self.accelerator.is_main_process:
+                    plot_couple(target_img,
+                                raster_img,
+                                step,
+                                prompt=prompt,
+                                output_dir=self.refine_png_dir.as_posix(),
+                                fname=f"{tag}_iter{step}")
+                    content_renderer.save_svg(self.refine_svg_dir / f"{tag}_svg_iter{step}.svg")
+
+                step += 1
+                pbar.update(1)
+
+        # update current svg
+        content_renderer.save_svg(init_svg_path)
+        # save
+        img = content_renderer.get_image()
+        plot_img(img, self.refine_dir, fname=f"{tag}_refined")
+
+        return init_svg_path
+
+    def VPSD_stage(self,
+                   text_prompt: AnyStr,
+                   init_svg_path: Union[List[AnyPath], AnyPath] = None,
+                   init_image: Union[List[torch.Tensor], torch.Tensor] = None):
+        if not self.vpsd_cfg.use:
+            return
+
         # for convenience
         guidance_cfg = self.x_cfg.vpsd
         vpsd_model_cfg = self.x_cfg.vpsd_model_cfg
@@ -345,29 +452,28 @@ class SVGDreamerPipeline(ModelState):
             reward_model = RM.load("ImageReward-v1.0", device=self.device, download_root=self.x_cfg.reward_path)
 
         # create svg renderer
-        if isinstance(init_svg_path, List):
+        if isinstance(init_svg_path, List):  # mode 3
             renderers = [self.load_renderer(init_path) for init_path in init_svg_path]
-        else:
+        elif isinstance(init_svg_path, AnyPath):  # mode 2
             renderers = [self.load_renderer(init_svg_path) for _ in range(n_particle)]
-
-        if init_svg_path:  # init from an SVG
-            target_img = self.target_file_preprocess(self.result_path / 'target_img.png')
-        else:  # randomly init
+            init_image = [init_image] * n_particle
+        else:  # mode 1
+            renderers = [self.load_renderer(init_svg_path) for _ in range(n_particle)]
             if self.x_cfg.color_init == 'rand':  # randomly init
-                target_img = torch.randn(1, 3, self.im_size, self.im_size)
-                self.print("color: randomly init")
+                init_img = torch.randn(1, 3, self.im_size, self.im_size)
             else:  # specified color
-                target_img = init_tensor_with_color(self.x_cfg.color_init, 1, self.im_size, self.im_size)
+                init_img = init_tensor_with_color(self.x_cfg.color_init, 1, self.im_size, self.im_size)
                 self.print(f"color: {self.x_cfg.color_init}")
-            plot_img(target_img, self.result_path, fname='target_img')
+            plot_img(init_img, self.result_path, fname='target_img')
+            init_image = [init_img] * n_particle
 
         # initialize the particles
-        for render in renderers:
-            render.component_wise_path_init(gt=target_img, pred=None, init_type=self.x_cfg.coord_init)
+        for render, gt_ in zip(renderers, init_image):
+            render.component_wise_path_init(gt=gt_, pred=None, init_type=self.x_cfg.coord_init)
 
         # log init images
         for i, r in enumerate(renderers):
-            init_imgs = r.init_image(stage=0, num_paths=self.x_cfg.num_paths)
+            init_imgs = r.init_image(num_paths=self.x_cfg.num_paths)
             plot_img(init_imgs, self.ft_init_dir, fname=f"init_img_stage_two_{i}")
 
         # init renderer optimizer
@@ -404,7 +510,7 @@ class SVGDreamerPipeline(ModelState):
         L_reward = torch.tensor(0.)
 
         self.step = 0  # reset global step
-        self.print(f"\ntotal VPSD optimization steps: {total_step}")
+        self.print(f"Total Optimization Steps: {total_step}")
         with tqdm(initial=self.step, total=total_step, disable=not self.accelerator.is_main_process) as pbar:
             while self.step < total_step:
                 # set particles
@@ -488,12 +594,14 @@ class SVGDreamerPipeline(ModelState):
                     r.clip_curve_shape()
 
                 # re-init paths
-                if self.step % path_reinit.freq == 0 and self.step < path_reinit.stop_step and self.step != 0:
+                if path_reinit.use and self.step % path_reinit.freq == 0 and self.step < path_reinit.stop_step and self.step != 0:
                     for i, r in enumerate(renderers):
-                        r.reinitialize_paths(path_reinit.use,  # on-off
-                                             path_reinit.opacity_threshold,
-                                             path_reinit.area_threshold,
-                                             fpath=self.reinit_dir / f"reinit-{self.step}_p{i}.svg")
+                        extra_point_params, extra_color_params, extra_width_params = \
+                            r.reinitialize_paths(f"P{i} - Step {self.step}",
+                                                 self.reinit_dir / f"reinit-{self.step}_p{i}.svg",
+                                                 path_reinit.opacity_threshold,
+                                                 path_reinit.area_threshold)
+                        optimizers[i].add_params(extra_point_params, extra_color_params, extra_width_params)
 
                 # update lr
                 if self.vpsd_optim.lr_schedule:
@@ -559,13 +667,6 @@ class SVGDreamerPipeline(ModelState):
                            self.x_cfg.width,
                            path_svg=path_svg,
                            device=self.device)
-
-        # if load a svg file, then rasterize it
-        save_path = self.result_path / 'target_img.png'
-        if path_svg is not None and (not save_path.exists()):
-            canvas_width, canvas_height, shapes, shape_groups = renderer.load_svg(path_svg)
-            render_img = renderer.render_image(canvas_width, canvas_height, shapes, shape_groups)
-            torchvision.utils.save_image(render_img, fp=save_path)
         return renderer
 
     def target_file_preprocess(self, tar_path: AnyPath):
@@ -585,15 +686,48 @@ class SVGDreamerPipeline(ModelState):
                        fg_attn_map: np.ndarray,
                        bg_attn_map: np.ndarray,
                        iter: Union[str, int],
-                       tau: float = 0.15):
+                       tau: float = 0.2):
         # attention to mask
         bool_fg_attn_map = fg_attn_map > tau
         fg_mask = bool_fg_attn_map.astype(int)  # [w, h]
 
-        # shrunk_mask
-        w, h = fg_mask.shape
-        fg_mask[1:w - 1, 1:h - 1] = fg_mask[1:w - 1, 1:h - 1]
+        def shrink_mask_contour(mask, epsilon_factor=0.05, erosion_kernel_size=5, dilation_kernel_size=5):
+            """Shrink the contours of a binary mask image.
 
+            Args:
+                mask (numpy.ndarray): Binary mask image.
+                epsilon_factor (float, optional): Factor for adjusting contour approximation precision. Defaults to 0.01.
+                erosion_kernel_size (int, optional): Size of the kernel for erosion operation. Defaults to 3.
+                dilation_kernel_size (int, optional): Size of the kernel for dilation operation. Defaults to 3.
+
+            Returns:
+                numpy.ndarray: Mask image with shrunk contours.
+            """
+            mask = mask.astype(np.uint8) * 255
+
+            # Find contours in the input image
+            contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+            # Approximate the contours
+            for contour in contours:
+                epsilon = epsilon_factor * cv2.arcLength(contour, True)
+                approx = cv2.approxPolyDP(contour, epsilon, True)
+                cv2.drawContours(mask, [approx], 0, (255), -1)
+
+            # Use erosion operation to further shrink the contours
+            kernel_erode = np.ones((erosion_kernel_size, erosion_kernel_size), np.uint8)
+            mask = cv2.erode(mask, kernel_erode, iterations=1)
+
+            # Use dilation operation to further shrink the contours
+            kernel_dilate = np.ones((dilation_kernel_size, dilation_kernel_size), np.uint8)
+            mask = cv2.dilate(mask, kernel_dilate, iterations=1)
+
+            mask = (mask / 255).astype(np.uint8)
+            return mask
+
+        # shrunk_mask
+        fg_mask = shrink_mask_contour(fg_mask)
+        # get background mask
         bg_mask = 1 - fg_mask
 
         # masked image, and save in place

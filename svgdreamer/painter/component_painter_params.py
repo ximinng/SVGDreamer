@@ -33,6 +33,7 @@ class CompPainter:
             radius: int = 20,
             n_grid: int = 32,
             stroke_width: int = 3,
+            path_svg=None,
             device=None,
             attn_init: bool = False,
             attention_map: torch.Tensor = None,
@@ -41,6 +42,7 @@ class CompPainter:
         self.style = style
         self.device = device
         self.target_img = target_img
+        self.path_svg = path_svg
 
         # curve params
         self.num_segments = num_segments
@@ -128,10 +130,19 @@ class CompPainter:
     def init_image(self, num_paths=0):
         self.cur_shapes, self.cur_shape_groups = [], []
 
-        if self.style == 'pixelart':  # update path definition
+        if self.style in ['pixelart', 'low-poly']:  # update path definition
             num_paths = self.n_grid
 
-        for i in range(num_paths):
+        num_paths_exists = 0
+        if self.path_svg is not None and pathlib.Path(self.path_svg).exists():
+            print(f"-> init svg from `{self.path_svg}` ...")
+
+            self.canvas_width, self.canvas_height, self.shapes, self.shape_groups = self.load_svg(self.path_svg)
+            self.cur_shapes, self.cur_shape_groups = self.shapes, self.shape_groups
+            # if you want to add more strokes to existing ones and optimize on all of them
+            num_paths_exists = len(self.shapes)
+
+        for i in range(num_paths_exists, num_paths):
             if self.style == 'iconography':
                 path = self.get_path()
                 self.shapes.append(path)
