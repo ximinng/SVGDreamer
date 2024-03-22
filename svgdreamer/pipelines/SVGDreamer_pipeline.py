@@ -2,6 +2,7 @@
 # Copyright (c) XiMing Xing. All rights reserved.
 # Author: XiMing Xing
 # Description:
+import os
 import pathlib
 from PIL import Image
 from typing import AnyStr, Union, Tuple, List
@@ -454,7 +455,7 @@ class SVGDreamerPipeline(ModelState):
         # create svg renderer
         if isinstance(init_svg_path, List):  # mode 3
             renderers = [self.load_renderer(init_path) for init_path in init_svg_path]
-        elif isinstance(init_svg_path, AnyPath):  # mode 2
+        elif isinstance(init_svg_path, (str, pathlib.Path, os.PathLike)):  # mode 2
             renderers = [self.load_renderer(init_svg_path) for _ in range(n_particle)]
             init_image = [init_image] * n_particle
         else:  # mode 1
