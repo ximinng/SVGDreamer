@@ -38,6 +38,7 @@ sive:
     mean_comp: False
     comp_idx: 0
     attn_coeff: 1.0 # attn fusion, w * cross-attn + (1-w) * self-attn
+  mask_tau: 0.3 # the threshold used to convert the attention map into a mask
   bg:
     style: "iconography" # 'iconography' ,"pixelart", "sketch", 'painting', 'ink'
     num_iter: 500
@@ -131,7 +132,7 @@ vpsd_model_cfg:
 vpsd:
   use: False
   type: 'vpsd'
-  n_particle: 4 # 4, 8, 16
+  n_particle: 6 # 4, 8, 16
   vsd_n_particle: 4 # the batch size of particles
   particle_aug: False # do data enhancement for the input particles
   num_iter: 1 # total iterations

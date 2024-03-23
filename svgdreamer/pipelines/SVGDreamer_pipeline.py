@@ -92,10 +92,6 @@ class SVGDreamerPipeline(ModelState):
         self.vpsd_cfg = self.x_cfg.vpsd
         self.vpsd_optim = self.x_cfg.vpsd_stage_optim
 
-        if self.style == "pixelart":
-            self.x_cfg.sive_stage_optim.lr_schedule = False
-            self.x_cfg.vpsd_stage_optim.lr_schedule = False
-
     def painterly_rendering(self, text_prompt: str, target_file: AnyPath = None):
         # log prompts
         self.print(f"prompt: {text_prompt}")
@@ -132,9 +128,9 @@ class SVGDreamerPipeline(ModelState):
         merged_images = []
         for i in range(self.vpsd_cfg.n_particle):
             select_sample_path = self.result_path / f'select_sample_{i}.png'
-
             # generate sample and attention map
-            fg_attn_map, bg_attn_map, controller = self.extract_ldm_attn(self.x_cfg.sive_model_cfg,
+            fg_attn_map, bg_attn_map, controller = self.extract_ldm_attn(i,
+                                                                         self.x_cfg.sive_model_cfg,
                                                                          pipeline,
                                                                          text_prompt,
                                                                          select_sample_path,
@@ -146,7 +142,8 @@ class SVGDreamerPipeline(ModelState):
             self.print(f"load target file from: {select_sample_path.as_posix()}")
 
             # get objects by attention map
-            fg_img, bg_img, fg_mask, bg_mask = self.extract_object(select_img, fg_attn_map, bg_attn_map, iter=i)
+            fg_img, bg_img, fg_mask, bg_mask = self.extract_object(i, select_img, fg_attn_map, bg_attn_map,
+                                                                   tau=self.sive_cfg.mask_tau)
             self.print(f"fg_img shape: {fg_img.shape}, bg_img: {bg_img.shape}")
 
             # background rendering
@@ -641,7 +638,7 @@ class SVGDreamerPipeline(ModelState):
 
         # save final
         for i, r in enumerate(renderers):
-            ft_svg_path = self.result_path / f"finetune_final_p_{i}.svg"
+            ft_svg_path = self.result_path / f"finetune_final_p{i}.svg"
             r.pretty_save_svg(ft_svg_path)
         # save SVGs
         torchvision.utils.save_image(raster_imgs, fp=self.result_path / f'all_particles.png')
@@ -683,10 +680,10 @@ class SVGDreamerPipeline(ModelState):
         return target_img
 
     def extract_object(self,
+                       iter: Union[str, int],
                        select_img: torch.Tensor,
                        fg_attn_map: np.ndarray,
                        bg_attn_map: np.ndarray,
-                       iter: Union[str, int],
                        tau: float = 0.2):
         # attention to mask
         bool_fg_attn_map = fg_attn_map > tau
@@ -755,6 +752,7 @@ class SVGDreamerPipeline(ModelState):
         return fg_img_final, bg_img_final, fg_mask, bg_mask
 
     def extract_ldm_attn(self,
+                         iter: int,
                          model_cfg: omegaconf.DictConfig,
                          pipeline: DiffusionPipeline,
                          prompts: str,
@@ -762,7 +760,7 @@ class SVGDreamerPipeline(ModelState):
                          attn_init_cfg: omegaconf.DictConfig,
                          image_size: int,
                          token_ind: int,
-                         attn_init: bool = True, ):
+                         attn_init: bool = True):
         if token_ind <= 0:
             raise ValueError("The 'token_ind' should be greater than 0")
 
@@ -837,7 +835,7 @@ class SVGDreamerPipeline(ModelState):
             self_attn_vis = np.copy(self_attn)
             self_attn_vis = self_attn_vis * 255
             self_attn_vis = np.repeat(np.expand_dims(self_attn_vis, axis=2), 3, axis=2).astype(np.uint8)
-            view_images(self_attn_vis, save_image=True, fp=self.sive_attn_dir / "self-attn-final.png")
+            view_images(self_attn_vis, save_image=True, fp=self.sive_attn_dir / f"self-attn-final-{iter}.png")
 
             """get final attention map"""
             attn_map = attn_init_cfg.attn_coeff * cross_attn_map + (1 - attn_init_cfg.attn_coeff) * self_attn
@@ -847,7 +845,7 @@ class SVGDreamerPipeline(ModelState):
             attn_map_vis = np.copy(attn_map)
             attn_map_vis = attn_map_vis * 255
             attn_map_vis = np.repeat(np.expand_dims(attn_map_vis, axis=2), 3, axis=2).astype(np.uint8)
-            view_images(attn_map_vis, save_image=True, fp=self.sive_attn_dir / 'fusion-attn.png')
+            view_images(attn_map_vis, save_image=True, fp=self.sive_attn_dir / f'fusion-attn-{iter}.png')
 
             # inverse fusion-attention to [0, 1]
             inverse_attn = 1 - attn_map
@@ -855,7 +853,8 @@ class SVGDreamerPipeline(ModelState):
             reversed_attn_map_vis = np.copy(inverse_attn)
             reversed_attn_map_vis = reversed_attn_map_vis * 255
             reversed_attn_map_vis = np.repeat(np.expand_dims(reversed_attn_map_vis, axis=2), 3, axis=2).astype(np.uint8)
-            view_images(reversed_attn_map_vis, save_image=True, fp=self.sive_attn_dir / 'reversed-fusion-attn.png')
+            view_images(reversed_attn_map_vis, save_image=True,
+                        fp=self.sive_attn_dir / f'reversed-fusion-attn-{iter}.png')
 
             self.print(f"-> fusion attn_map: {attn_map.shape}")
         else:

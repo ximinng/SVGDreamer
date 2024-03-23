@@ -301,7 +301,7 @@ class Painter(DiffVGState):
             fpath: The path to save the reinitialized SVG.
         """
         if self.style not in ['iconography', 'low-poly', 'painting', 'ink']:
-            return
+            return None, None, None
 
         def get_keys_below_threshold(my_dict, threshold):
             keys_below_threshold = [key for key, value in my_dict.items() if value < threshold]
@@ -360,7 +360,8 @@ class Painter(DiffVGState):
                 if path.id in reinit_union:
                     coord = [i, i] if self.style == 'low-poly' else None
                     self.shapes[i] = self.get_path(coord=coord)
-                    # update coords
+                    # new point
+                    self.shapes[i].id = path.id
                     self.shapes[i].points.requires_grad = True
                     extra_point_params.append(self.shapes[i].points)
                     if self.style == 'painting':
@@ -377,7 +378,7 @@ class Painter(DiffVGState):
                             shape_ids=torch.tensor(list(shp_ids)),
                             fill_color=fill_color_init,
                             stroke_color=None)
-                        # requires gradients
+                        # new shape
                         self.shape_groups[i].fill_color.requires_grad = True
                         extra_color_params.append(self.shape_groups[i].fill_color)
                     elif self.style in ['painting']:
@@ -387,7 +388,7 @@ class Painter(DiffVGState):
                             shape_ids=torch.tensor([len(self.shapes) - 1]),
                             fill_color=None,
                             stroke_color=stroke_color_init)
-                        # requires gradients
+                        # new shape
                         self.shape_groups[i].stroke_color.requires_grad = True
                         extra_color_params.append(self.shape_groups[i].stroke_color)
                     elif self.style in ['ink']:
@@ -397,7 +398,7 @@ class Painter(DiffVGState):
                             shape_ids=torch.tensor([len(self.shapes) - 1]),
                             fill_color=None,
                             stroke_color=stroke_color_init)
-                        # requires gradients
+                        # new shape
                         self.shape_groups[i].stroke_color.requires_grad = True
                         extra_color_params.append(self.shape_groups[i].stroke_color)
 
@@ -685,11 +686,11 @@ class PainterOptimizer:
             self.point_scheduler = LambdaLR(self.point_optimizer, lr_lambda=self.lr_lambda, last_epoch=-1)
 
     def add_params(self, point_params, color_params, width_params):
-        if len(point_params) > 0:
+        if point_params is not None and len(point_params) > 0:
             self.point_optimizer.add_param_group({f'params': point_params})
-        if len(color_params) > 0:
+        if color_params is not None and len(color_params) > 0:
             self.color_optimizer.add_param_group({f'params': color_params})
-        if len(width_params) > 0:
+        if width_params is not None and len(width_params) > 0:
             self.width_optimizer.add_param_group({f'params': width_params})
 
     def update_lr(self):

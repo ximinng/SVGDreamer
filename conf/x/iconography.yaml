@@ -38,6 +38,7 @@ sive:
     mean_comp: False
     comp_idx: 0
     attn_coeff: 1.0 # attn fusion, w * cross-attn + (1-w) * self-attn
+  mask_tau: 0.3 # the threshold used to convert the attention map into a mask
   bg:
     style: "iconography" # 'iconography' ,"pixelart", "sketch", 'painting', 'ink'
     num_iter: 10
@@ -81,12 +82,6 @@ sive:
   tog: # for refinement
     reinit: False # if False, use fg params to init content
     num_iter: 10
-    # optim
-    lr_schedule: False # enable lr_scheduler or not
-    # loss
-    bg_lam: 0
-    fg_lam: 1
-    xing_loss_weight: 0
 
 # VPSD primitives
 num_paths: 512 # number of strokes
