@@ -45,12 +45,6 @@ Before running the code, download the stable diffusion model. Append `diffuser.d
 
 **Prompt:** An image of Batman. full body action pose, complete detailed body. white background. empty background, high
 quality, 4K, ultra realistic <br/>
-**Preview:**
-
-| attn-map                                       | bg init                                           | fg init                                           | bg final                                           | fg final                                           | final                                            |
-|------------------------------------------------|---------------------------------------------------|---------------------------------------------------|----------------------------------------------------|----------------------------------------------------|--------------------------------------------------|
-| <img src="./assets/SIVE-astronaut-1/attn.png"> | <img src="./assets/SIVE-astronaut-1/init_bg.svg"> | <img src="./assets/SIVE-astronaut-1/init_fg.svg"> | <img src="./assets/SIVE-astronaut-1/final_bg.svg"> | <img src="./assets/SIVE-astronaut-1/final_fg.svg"> | <img src="./assets/SIVE-astronaut-1/result.svg"> |
-
 **Script:**
 
 ```shell
@@ -68,6 +62,14 @@ More parameters in `./conf/x/style.yaml`, you can modify these parameters from t
 append `x.vpsd.n_particle=4` to the end of the script.
 
 ### SIVE
+
+**Prompt:** an astronaut walking across a desert, planet mars in the background, floating beside planets, space art <br/>
+**Preview:**
+
+| attn-map                                       | bg init                                           | fg init                                           | bg final                                           | fg final                                           | final                                            |
+|------------------------------------------------|---------------------------------------------------|---------------------------------------------------|----------------------------------------------------|----------------------------------------------------|--------------------------------------------------|
+| <img src="./assets/SIVE-astronaut-1/attn.png"> | <img src="./assets/SIVE-astronaut-1/init_bg.svg"> | <img src="./assets/SIVE-astronaut-1/init_fg.svg"> | <img src="./assets/SIVE-astronaut-1/final_bg.svg"> | <img src="./assets/SIVE-astronaut-1/final_fg.svg"> | <img src="./assets/SIVE-astronaut-1/result.svg"> |
+
 
 **Script:**
 
