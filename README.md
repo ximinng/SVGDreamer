@@ -43,8 +43,17 @@ Before running the code, download the stable diffusion model. Append `diffuser.d
 
 ### SIVE + VPSD
 
-**Prompt:** An image of Batman. full body action pose, complete detailed body. white background. empty background, high
-quality, 4K, ultra realistic <br/>
+**Prompt:** an image of Batman. full body action pose, complete detailed body, white background, high quality, 4K, ultra
+realistic <br/>
+**Preview:**
+
+|                  Particle 1                   |                  Particle 2                   |                  Particle 3                   |                  Particle 4                  |                  Particle 5                   |                  Particle 6                   |
+|:---------------------------------------------:|:---------------------------------------------:|:---------------------------------------------:|:--------------------------------------------:|:---------------------------------------------:|:---------------------------------------------:|
+|                    init p1                    |                    init p2                    |                    init p3                    |                   init p4                    |                    init p5                    |                    init p6                    |
+| <img src="./assets/case-batman/init_p0.svg">  | <img src="./assets/case-batman/init_p1.svg">  | <img src="./assets/case-batman/init_p2.svg">  | <img src="./assets/case-batman/init_p3.svg"> | <img src="./assets/case-batman/init_p4.svg">  | <img src="./assets/case-batman/init_p5.svg">  |
+|                   final p1                    |                   final p2                    |                   final p3                    |                   final p4                   |                   final p5                    |                   final p6                    |
+| <img src="./assets/case-batman/final_p0.svg"> | <img src="./assets/case-batman/final_p1.svg"> | <img src="./assets/case-batman/final_p2.svg"> | <img src="assets/case-batman/final_p3.svg">  | <img src="./assets/case-batman/final_p4.svg"> | <img src="./assets/case-batman/final_p5.svg"> |
+
 **Script:**
 
 ```shell
@@ -63,13 +72,13 @@ append `x.vpsd.n_particle=4` to the end of the script.
 
 ### SIVE
 
-**Prompt:** an astronaut walking across a desert, planet mars in the background, floating beside planets, space art <br/>
+**Prompt:** an astronaut walking across a desert, planet mars in the background, floating beside planets, space
+art <br/>
 **Preview:**
 
-| attn-map                                       | bg init                                           | fg init                                           | bg final                                           | fg final                                           | final                                            |
-|------------------------------------------------|---------------------------------------------------|---------------------------------------------------|----------------------------------------------------|----------------------------------------------------|--------------------------------------------------|
+|                    attn-map                    |                      bg init                      |                      fg init                      |                      bg final                      |                      fg final                      |                      final                       |
+|:----------------------------------------------:|:-------------------------------------------------:|:-------------------------------------------------:|:--------------------------------------------------:|:--------------------------------------------------:|:------------------------------------------------:|
 | <img src="./assets/SIVE-astronaut-1/attn.png"> | <img src="./assets/SIVE-astronaut-1/init_bg.svg"> | <img src="./assets/SIVE-astronaut-1/init_fg.svg"> | <img src="./assets/SIVE-astronaut-1/final_bg.svg"> | <img src="./assets/SIVE-astronaut-1/final_fg.svg"> | <img src="./assets/SIVE-astronaut-1/result.svg"> |
-
 
 **Script:**
 
@@ -84,12 +93,12 @@ python svgdreamer.py x=iconography_s1 skip_sive=False "prompt='a man in an astro
 **Prompt:** Sydney opera house. oil painting. by Van Gogh <br/>
 **Preview:**
 
-| Particle 1                                             | Particle 2                                             | Particle 3                                             | Particle 4                                             | Particle 5                                             | Particle 6                                             |
-|--------------------------------------------------------|--------------------------------------------------------|--------------------------------------------------------|--------------------------------------------------------|--------------------------------------------------------|--------------------------------------------------------|
-| init p1                                                | init p2                                                | init p3                                                | init p4                                                | init p5                                                | init p6                                                |
+|                       Particle 1                       |                       Particle 2                       |                       Particle 3                       |                       Particle 4                       |                       Particle 5                       |                       Particle 6                       |
+|:------------------------------------------------------:|:------------------------------------------------------:|:------------------------------------------------------:|:------------------------------------------------------:|:------------------------------------------------------:|:------------------------------------------------------:|
+|                        init p1                         |                        init p2                         |                        init p3                         |                        init p4                         |                        init p5                         |                        init p6                         |
 | <img src="./assets/Icon-SydneyOperaHouse/init_p0.svg"> | <img src="./assets/Icon-SydneyOperaHouse/init_p1.svg"> | <img src="./assets/Icon-SydneyOperaHouse/init_p2.svg"> | <img src="./assets/Icon-SydneyOperaHouse/init_p3.svg"> | <img src="./assets/Icon-SydneyOperaHouse/init_p4.svg"> | <img src="./assets/Icon-SydneyOperaHouse/init_p5.svg"> |
-| final p1                                               | final p2                                               | final p3                                               | final p4                                               | final p5                                               | final p6                                               |
-| <img src="./assets/Icon-SydneyOperaHouse/p_0.svg">     | <img src="./assets/Icon-SydneyOperaHouse/p_1.svg">     | <img src="./assets/Icon-SydneyOperaHouse/p_2.svg">     | <img src="assets/Icon-SydneyOperaHouse/p_3.svg">       | <img src="./assets/Icon-SydneyOperaHouse/p_4.svg">     | <img src="./assets/Icon-SydneyOperaHouse/p_5.svg">     |
+|                        final p1                        |                        final p2                        |                        final p3                        |                        final p4                        |                        final p5                        |                        final p6                        |
+|   <img src="./assets/Icon-SydneyOperaHouse/p_0.svg">   |   <img src="./assets/Icon-SydneyOperaHouse/p_1.svg">   |   <img src="./assets/Icon-SydneyOperaHouse/p_2.svg">   |    <img src="assets/Icon-SydneyOperaHouse/p_3.svg">    |   <img src="./assets/Icon-SydneyOperaHouse/p_4.svg">   |   <img src="./assets/Icon-SydneyOperaHouse/p_5.svg">   |
 
 **Script:**
 
@@ -102,12 +111,12 @@ python svgdreamer.py x=iconography "prompt='Sydney opera house. oil painting. by
 **Prompt:** Abstract Vincent van Gogh Oil Painting Elephant, featuring earthy tones of green and brown <br/>
 **Preview:**
 
-| Particle 1                                         | Particle 2                                         | Particle 3                                         | Particle 4                                         | Particle 5                                         | Particle 6                                         |
-|----------------------------------------------------|----------------------------------------------------|----------------------------------------------------|----------------------------------------------------|----------------------------------------------------|----------------------------------------------------|
-| init p1                                            | init p2                                            | init p3                                            | init p4                                            | init p5                                            | init p6                                            |
+|                     Particle 1                     |                     Particle 2                     |                     Particle 3                     |                     Particle 4                     |                     Particle 5                     |                     Particle 6                     |
+|:--------------------------------------------------:|:--------------------------------------------------:|:--------------------------------------------------:|:--------------------------------------------------:|:--------------------------------------------------:|:--------------------------------------------------:|
+|                      init p1                       |                      init p2                       |                      init p3                       |                      init p4                       |                      init p5                       |                      init p6                       |
 | <img src="./assets/Painting-Elephant/init_p0.svg"> | <img src="./assets/Painting-Elephant/init_p1.svg"> | <img src="./assets/Painting-Elephant/init_p2.svg"> | <img src="./assets/Painting-Elephant/init_p3.svg"> | <img src="./assets/Painting-Elephant/init_p4.svg"> | <img src="./assets/Painting-Elephant/init_p5.svg"> |
-| final p1                                           | final p2                                           | final p3                                           | final p4                                           | final p5                                           | final p6                                           |
-| <img src="./assets/Painting-Elephant/p_0.svg">     | <img src="./assets/Painting-Elephant/p_1.svg">     | <img src="./assets/Painting-Elephant/p_2.svg">     | <img src="./assets/Painting-Elephant/p_3.svg">     | <img src="./assets/Painting-Elephant/p_4.svg">     | <img src="./assets/Painting-Elephant/p_5.svg">     |
+|                      final p1                      |                      final p2                      |                      final p3                      |                      final p4                      |                      final p5                      |                      final p6                      |
+|   <img src="./assets/Painting-Elephant/p_0.svg">   |   <img src="./assets/Painting-Elephant/p_1.svg">   |   <img src="./assets/Painting-Elephant/p_2.svg">   |   <img src="./assets/Painting-Elephant/p_3.svg">   |   <img src="./assets/Painting-Elephant/p_4.svg">   |   <img src="./assets/Painting-Elephant/p_5.svg">   |
 
 **Script:**
 
@@ -120,12 +129,12 @@ python svgdreamer.py x=painting "prompt='Abstract Vincent van Gogh Oil Painting 
 **Prompt:** Darth vader with lightsaber <br/>
 **Preview:**
 
-| Particle 1                                           | Particle 2                                           | Particle 3                                           | Particle 4                                           | Particle 5                                           | Particle 6                                           |
-|------------------------------------------------------|------------------------------------------------------|------------------------------------------------------|------------------------------------------------------|------------------------------------------------------|------------------------------------------------------|
-| init p1                                              | init p2                                              | init p3                                              | init p4                                              | init p5                                              | init p6                                              |
+|                      Particle 1                      |                      Particle 2                      |                      Particle 3                      |                      Particle 4                      |                      Particle 5                      |                      Particle 6                      |
+|:----------------------------------------------------:|:----------------------------------------------------:|:----------------------------------------------------:|:----------------------------------------------------:|:----------------------------------------------------:|:----------------------------------------------------:|
+|                       init p1                        |                       init p2                        |                       init p3                        |                       init p4                        |                       init p5                        |                       init p6                        |
 | <img src="./assets/Pixelart-DarthVader/init_p0.svg"> | <img src="./assets/Pixelart-DarthVader/init_p1.svg"> | <img src="./assets/Pixelart-DarthVader/init_p2.svg"> | <img src="./assets/Pixelart-DarthVader/init_p3.svg"> | <img src="./assets/Pixelart-DarthVader/init_p4.svg"> | <img src="./assets/Pixelart-DarthVader/init_p5.svg"> |
-| final p1                                             | final p2                                             | final p3                                             | final p4                                             | final p5                                             | final p6                                             |
-| <img src="./assets/Pixelart-DarthVader/p0.svg">      | <img src="./assets/Pixelart-DarthVader/p1.svg">      | <img src="./assets/Pixelart-DarthVader/p2.svg">      | <img src="./assets/Pixelart-DarthVader/p3.svg">      | <img src="./assets/Pixelart-DarthVader/p4.svg">      | <img src="./assets/Pixelart-DarthVader/p5.svg">      |
+|                       final p1                       |                       final p2                       |                       final p3                       |                       final p4                       |                       final p5                       |                       final p6                       |
+|   <img src="./assets/Pixelart-DarthVader/p0.svg">    |   <img src="./assets/Pixelart-DarthVader/p1.svg">    |   <img src="./assets/Pixelart-DarthVader/p2.svg">    |   <img src="./assets/Pixelart-DarthVader/p3.svg">    |   <img src="./assets/Pixelart-DarthVader/p4.svg">    |   <img src="./assets/Pixelart-DarthVader/p5.svg">    |
 
 **Script:**
 
@@ -142,9 +151,14 @@ python svgdreamer.py x=lowpoly "prompt='A picture of a bald eagle. low-ploy. pol
 python svgdreamer.py x=sketch "prompt='A free-hand drawing of A speeding Lamborghini. black and white drawing.'" result_path='./logs/Lamborghini'
 # Style: ink and wash
 python svgdreamer.py x=ink "prompt='Big Wild Goose Pagoda. ink style. Minimalist abstract art grayscale watercolor.'" result_path='./logs/BigWildGoosePagoda'
+```
+
+#### More Cases
+
+````shell
 # Style: painting
 python svgdreamer.py x=painting "prompt='self portrait of Van Gogh. oil painting. cmyk portrait. multi colored. defiant and beautiful. cmyk. expressive eyes.'" result_path='./logs/VanGogh-Portrait'
-```
+````
 
 ## 🔑 Tips
 

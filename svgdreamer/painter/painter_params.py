@@ -364,7 +364,7 @@ class Painter(DiffVGState):
                     self.shapes[i].id = path.id
                     self.shapes[i].points.requires_grad = True
                     extra_point_params.append(self.shapes[i].points)
-                    if self.style == 'painting':
+                    if self.style in ['painting', 'ink']:
                         self.shapes[i].stroke_width.requires_grad = True
                         extra_width_params.append(self.shapes[i].stroke_width)
 
@@ -398,9 +398,6 @@ class Painter(DiffVGState):
                             shape_ids=torch.tensor([len(self.shapes) - 1]),
                             fill_color=None,
                             stroke_color=stroke_color_init)
-                        # new shape
-                        self.shape_groups[i].stroke_color.requires_grad = True
-                        extra_color_params.append(self.shape_groups[i].stroke_color)
 
             # save reinit svg
             self.pretty_save_svg(fpath)
