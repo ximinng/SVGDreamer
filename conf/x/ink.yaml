@@ -84,7 +84,7 @@ sive:
     num_iter: 10
 
 # VPSD primitives
-num_paths: 128 # number of strokes
+num_paths: 64 # number of strokes
 trainable_bg: False # set the background to be trainable
 width: 6 # stroke width
 num_segments: 4

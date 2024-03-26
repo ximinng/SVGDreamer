@@ -142,7 +142,7 @@ vpsd:
   t_range: [ 0.02, 0.98 ]
   # 'randint': random time steps, this may have a more authentic style.
   # 'max_0.5_900': annealing from 0.98 to 0.5 after 900 steps, this may have a more colorful results.
-  t_schedule: 'max_0.5_1500' # or 'randint'
+  t_schedule: 'max_0.5_1000' # or 'randint'
   # phi model config
   phi_single: False # if False new an unet model to estimate noise
   phi_model: 'lora' # 'lora', 'unet_simple'

@@ -788,7 +788,7 @@ class SVGDreamerPipeline(ModelState):
                                              controller,
                                              res=attn_init_cfg.cross_attn_res,
                                              from_where=("up", "down"),
-                                             save_path=self.sive_attn_dir / "cross_attn.png")
+                                             save_path=self.sive_attn_dir / f"cross-attn-{iter}.png")
 
             self.print(f"the length of tokens is {len(tokens)}, select {token_ind}-th token")
             # [res, res, seq_len]
@@ -814,7 +814,8 @@ class SVGDreamerPipeline(ModelState):
 
             """ldm self-attention map"""
             self_attention_maps, svd, vh_ = \
-                pipeline.get_self_attention_comp([prompts],
+                pipeline.get_self_attention_comp(iter,
+                                                 [prompts],
                                                  controller,
                                                  res=attn_init_cfg.self_attn_res,
                                                  from_where=("up", "down"),

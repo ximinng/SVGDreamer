@@ -4,7 +4,7 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2312.16476-b31b1b.svg)](https://arxiv.org/abs/2312.16476)
 [![website](https://img.shields.io/badge/Website-Gitpage-4CCD99)](https://ximinng.github.io/SVGDreamer-project/)
 [![blog](https://img.shields.io/badge/Blog-EN-9195F6)](https://huggingface.co/blog/xingxm/svgdreamer)
-[![blog](https://img.shields.io/badge/Blog-CN-9195F6)](https://huggingface.co/blog/xingxm/svgdreamer)
+[![blog](https://img.shields.io/badge/Blog-CN-9195F6)](https://mp.weixin.qq.com/s/QEBiP-xLVvQVoV_9H2Id7g)
 
 This repository contains our official implementation of the CVPR 2024 paper: SVGDreamer: Text-Guided SVG Generation with
 Diffusion Model. It can generate high-quality SVGs based on text prompts.
@@ -31,7 +31,7 @@ In the top level directory run,
 sh script/install.sh
 ```
 
-or using docker images,
+or using docker,
 
 ```shell
 docker run --name svgdreamer --gpus all -it --ipc=host ximingxing/svgrender:v1 /bin/bash
@@ -146,11 +146,11 @@ python svgdreamer.py x=pixelart "prompt='Darth vader with lightsaber.'" result_p
 
 ```shell
 # Style: low-ploy
-python svgdreamer.py x=lowpoly "prompt='A picture of a bald eagle. low-ploy. polygon'" result_path='./logs/BaldEagle'
+python svgdreamer.py x=lowpoly "prompt='A picture of a bald eagle. low-ploy. polygon. minimal flat 2d vector'" neg_prompt='' result_path='./logs/BaldEagle'
 # Style: sketch
-python svgdreamer.py x=sketch "prompt='A free-hand drawing of A speeding Lamborghini. black and white drawing.'" result_path='./logs/Lamborghini'
+python svgdreamer.py x=sketch "prompt='A free-hand drawing of A speeding Lamborghini. black and white drawing.'" neg_prompt='' result_path='./logs/Lamborghini'
 # Style: ink and wash
-python svgdreamer.py x=ink "prompt='Big Wild Goose Pagoda. ink style. Minimalist abstract art grayscale watercolor.'" result_path='./logs/BigWildGoosePagoda'
+python svgdreamer.py x=ink "prompt='Big Wild Goose Pagoda. ink style. Minimalist abstract art grayscale watercolor.'" neg_prompt='' result_path='./logs/BigWildGoosePagoda'
 ```
 
 #### More Cases

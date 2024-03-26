@@ -173,7 +173,8 @@ class DiffusionPipeline(torch.nn.Module):
         return attention_maps, tokens
 
     def get_self_attention_comp(self,
-                                prompts,
+                                iter: int,
+                                prompts: List[str],
                                 attention_store: AttentionStore,
                                 res: int,
                                 from_where: List[str],
@@ -206,7 +207,7 @@ class DiffusionPipeline(torch.nn.Module):
             images.append(image)
         image_array = np.stack(images, axis=0)
         view_images(image_array, num_rows=max_com // 10, offset_ratio=0,
-                    save_image=True, fp=save_path / "self-attn-vh.png")
+                    save_image=True, fp=save_path / f"self-attn-vh-{iter}.png")
 
         return attention_maps, (u, s, vh), np.stack(vh_returns, axis=0)
 

@@ -5,7 +5,7 @@
 # common args
 prompt: ~
 token_ind: 1 # the index of text prompt, from 1
-neg_prompt: "nsfw, lowres, (bad), text, error, fewer, extra, missing, worst quality, jpeg artifacts, low quality, watermark, unfinished, displeasing, oldest, early, chromatic aberration, signature, extra digits, artistic error, username, scan, [abstract]" # negative prompt
+neg_prompt: "nsfw, lowres, (bad), text, error, fewer, extra, missing, worst quality, jpeg artifacts, low quality, watermark, unfinished, displeasing, oldest, early, chromatic aberration, signature, extra digits, artistic error, username, scan" # negative prompt
 skip_sive: True # optimize from scratch without SIVE init
 
 # Accelerate config
