@@ -135,7 +135,7 @@ vpsd:
   n_particle: 6 # 4, 8, 16
   vsd_n_particle: 4 # the batch size of particles
   particle_aug: False # do data enhancement for the input particles
-  num_iter: 1500 # total iterations
+  num_iter: 2000 # total iterations
   guidance_scale: 7.5 # CFG value
   grad_scale: 1.0 # increase or decrease the gradient
   grad_clip_val: ~ # eg: 10, clip the gradient of VPSD

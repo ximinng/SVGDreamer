@@ -37,9 +37,11 @@ or using docker,
 docker run --name svgdreamer --gpus all -it --ipc=host ximingxing/svgrender:v1 /bin/bash
 ```
 
-## 🔥 Quickstart
+and **download pretrained models** by setting `diffuser.download=True` in `/conf/config.yaml` the first time you run it.
 
-Before running the code, download the stable diffusion model. Append `diffuser.download=True` to the end of the script.
+(Alternatively, you can append `diffuser.download=True` to the end of the script.)
+
+## 🔥 Quickstart
 
 ### SIVE + VPSD
 
@@ -142,15 +144,47 @@ python svgdreamer.py x=painting "prompt='Abstract Vincent van Gogh Oil Painting 
 python svgdreamer.py x=pixelart "prompt='Darth vader with lightsaber.'" result_path='./logs/DarthVader'
 ```
 
+#### Low-poly style
+
+**Prompt:** A picture of a bald eagle. low-ploy. polygon. minimal flat 2d vector <br/>
+**Preview:**
+
+|                     Particle 1                     |                     Particle 2                     |                     Particle 3                     |                     Particle 4                     |                     Particle 5                     |                     Particle 6                     |
+|:--------------------------------------------------:|:--------------------------------------------------:|:--------------------------------------------------:|:--------------------------------------------------:|:--------------------------------------------------:|:--------------------------------------------------:|
+|                      init p1                       |                      init p2                       |                      init p3                       |                      init p4                       |                      init p5                       |                      init p6                       |
+| <img src="./assets/Lowpoly-BaldEagle/init_p0.svg"> | <img src="./assets/Lowpoly-BaldEagle/init_p1.svg"> | <img src="./assets/Lowpoly-BaldEagle/init_p2.svg"> | <img src="./assets/Lowpoly-BaldEagle/init_p3.svg"> | <img src="./assets/Lowpoly-BaldEagle/init_p4.svg"> | <img src="./assets/Lowpoly-BaldEagle/init_p5.svg"> |
+|                      final p1                      |                      final p2                      |                      final p3                      |                      final p4                      |                      final p5                      |                      final p6                      |
+|   <img src="./assets/Lowpoly-BaldEagle/p0.svg">    |   <img src="./assets/Lowpoly-BaldEagle/p1.svg">    |   <img src="./assets/Lowpoly-BaldEagle/p2.svg">    |   <img src="./assets/Lowpoly-BaldEagle/p3.svg">    |   <img src="./assets/Lowpoly-BaldEagle/p4.svg">    |   <img src="./assets/Lowpoly-BaldEagle/p5.svg">    |
+
+**Script:**
+
+```shell
+python svgdreamer.py x=lowpoly "prompt='A picture of a bald eagle. low-ploy. polygon. minimal flat 2d vector'" neg_prompt='' result_path='./logs/BaldEagle'
+```
+
+#### sketch style
+
+**Prompt:** A free-hand drawing of A speeding Lamborghini. black and white drawing. <br/>
+**Preview:**
+
+|                     Particle 1                      |                     Particle 2                      |                     Particle 3                      |                     Particle 4                      |                     Particle 5                      |                     Particle 6                      |
+|:---------------------------------------------------:|:---------------------------------------------------:|:---------------------------------------------------:|:---------------------------------------------------:|:---------------------------------------------------:|:---------------------------------------------------:|
+|                       init p1                       |                       init p2                       |                       init p3                       |                       init p4                       |                       init p5                       |                       init p6                       |
+| <img src="./assets/Sketch-Lamborghini/init_p0.svg"> | <img src="./assets/Sketch-Lamborghini/init_p1.svg"> | <img src="./assets/Sketch-Lamborghini/init_p2.svg"> | <img src="./assets/Sketch-Lamborghini/init_p3.svg"> | <img src="./assets/Sketch-Lamborghini/init_p4.svg"> | <img src="./assets/Sketch-Lamborghini/init_p5.svg"> |
+|                      final p1                       |                      final p2                       |                      final p3                       |                      final p4                       |                      final p5                       |                      final p6                       |
+|   <img src="./assets/Sketch-Lamborghini/p0.svg">    |   <img src="./assets/Sketch-Lamborghini/p1.svg">    |   <img src="./assets/Sketch-Lamborghini/p2.svg">    |   <img src="./assets/Sketch-Lamborghini/p3.svg">    |   <img src="./assets/Sketch-Lamborghini/p4.svg">    |   <img src="./assets/Sketch-Lamborghini/p5.svg">    |
+
+**Script:**
+
+```shell
+python svgdreamer.py x=sketch "prompt='A free-hand drawing of A speeding Lamborghini. black and white drawing.'" neg_prompt='' result_path='./logs/Lamborghini'
+```
+
 #### Other Styles
 
 ```shell
-# Style: low-ploy
-python svgdreamer.py x=lowpoly "prompt='A picture of a bald eagle. low-ploy. polygon. minimal flat 2d vector'" neg_prompt='' result_path='./logs/BaldEagle'
-# Style: sketch
-python svgdreamer.py x=sketch "prompt='A free-hand drawing of A speeding Lamborghini. black and white drawing.'" neg_prompt='' result_path='./logs/Lamborghini'
 # Style: ink and wash
-python svgdreamer.py x=ink "prompt='Big Wild Goose Pagoda. ink style. Minimalist abstract art grayscale watercolor.'" neg_prompt='' result_path='./logs/BigWildGoosePagoda'
+python svgdreamer.py x=ink "prompt='Big Wild Goose Pagoda. ink style. Minimalist abstract art grayscale watercolor. empty background'" neg_prompt='' result_path='./logs/BigWildGoosePagoda'
 ```
 
 #### More Cases
