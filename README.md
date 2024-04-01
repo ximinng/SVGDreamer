@@ -162,7 +162,7 @@ python svgdreamer.py x=pixelart "prompt='Darth vader with lightsaber.'" result_p
 python svgdreamer.py x=lowpoly "prompt='A picture of a bald eagle. low-ploy. polygon. minimal flat 2d vector'" neg_prompt='' result_path='./logs/BaldEagle'
 ```
 
-#### sketch style
+#### Sketch style
 
 **Prompt:** A free-hand drawing of A speeding Lamborghini. black and white drawing. <br/>
 **Preview:**
@@ -180,10 +180,9 @@ python svgdreamer.py x=lowpoly "prompt='A picture of a bald eagle. low-ploy. pol
 python svgdreamer.py x=sketch "prompt='A free-hand drawing of A speeding Lamborghini. black and white drawing.'" neg_prompt='' result_path='./logs/Lamborghini'
 ```
 
-#### Other Styles
+#### Ink and Wash style
 
 ```shell
-# Style: ink and wash
 python svgdreamer.py x=ink "prompt='Big Wild Goose Pagoda. ink style. Minimalist abstract art grayscale watercolor. empty background'" neg_prompt='' result_path='./logs/BigWildGoosePagoda'
 ```
 

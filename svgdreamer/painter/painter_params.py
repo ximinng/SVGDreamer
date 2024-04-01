@@ -392,8 +392,8 @@ class Painter(DiffVGState):
                         self.shape_groups[i].stroke_color.requires_grad = True
                         extra_color_params.append(self.shape_groups[i].stroke_color)
                     elif self.style in ['ink']:
-                        stroke_color_init = [0.0, 0.0, 0.0] + [random.random()]
-                        stroke_color_init = torch.FloatTensor(stroke_color_init)
+                        # stroke_color_init = [0.0, 0.0, 0.0] + [random.random()]
+                        stroke_color_init = torch.FloatTensor([0.0, 0.0, 0.0, 1.0])
                         self.shape_groups[i] = pydiffvg.ShapeGroup(
                             shape_ids=torch.tensor([len(self.shapes) - 1]),
                             fill_color=None,
