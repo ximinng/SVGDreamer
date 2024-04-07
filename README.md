@@ -182,6 +182,18 @@ python svgdreamer.py x=sketch "prompt='A free-hand drawing of A speeding Lamborg
 
 #### Ink and Wash style
 
+**Prompt:** Big Wild Goose Pagoda. ink style. Minimalist abstract art grayscale watercolor. empty background <br/>
+**Preview:**
+
+|                       Particle 1                        |                       Particle 2                        |                       Particle 3                        |                       Particle 4                        |                       Particle 5                        |                       Particle 6                        |
+|:-------------------------------------------------------:|:-------------------------------------------------------:|:-------------------------------------------------------:|:-------------------------------------------------------:|:-------------------------------------------------------:|:-------------------------------------------------------:|
+|                         init p1                         |                         init p2                         |                         init p3                         |                         init p4                         |                         init p5                         |                         init p6                         |
+| <img src="./assets/Ink-BigWildGoosePagoda/init_p0.svg"> | <img src="./assets/Ink-BigWildGoosePagoda/init_p1.svg"> | <img src="./assets/Ink-BigWildGoosePagoda/init_p2.svg"> | <img src="./assets/Ink-BigWildGoosePagoda/init_p3.svg"> | <img src="./assets/Ink-BigWildGoosePagoda/init_p4.svg"> | <img src="./assets/Ink-BigWildGoosePagoda/init_p5.svg"> |
+|                        final p1                         |                        final p2                         |                        final p3                         |                        final p4                         |                        final p5                         |                        final p6                         |
+|   <img src="./assets/Ink-BigWildGoosePagoda/p0.svg">    |   <img src="./assets/Ink-BigWildGoosePagoda/p1.svg">    |   <img src="./assets/Ink-BigWildGoosePagoda/p2.svg">    |   <img src="./assets/Ink-BigWildGoosePagoda/p3.svg">    |   <img src="./assets/Ink-BigWildGoosePagoda/p4.svg">    |   <img src="./assets/Ink-BigWildGoosePagoda/p5.svg">    |
+
+**Script:**
+
 ```shell
 python svgdreamer.py x=ink "prompt='Big Wild Goose Pagoda. ink style. Minimalist abstract art grayscale watercolor. empty background'" neg_prompt='' result_path='./logs/BigWildGoosePagoda'
 ```

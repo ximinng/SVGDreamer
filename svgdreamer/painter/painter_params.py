@@ -279,6 +279,8 @@ class Painter(DiffVGState):
             for group in self.shape_groups:
                 group.stroke_color.data[:3].clamp_(0., 0.)  # to force black stroke
                 group.stroke_color.data[-1].clamp_(0., 1.)  # clip alpha
+            for path in self.shapes:
+                path.stroke_width.data.clamp_(1.0, self.stroke_width)  # clip width
         else:
             for group in self.shape_groups:
                 if group.stroke_color is not None:
@@ -296,6 +298,7 @@ class Painter(DiffVGState):
         Notes: Since VF is not open source, this is the version I implemented.
 
         Args:
+            infos: log infos
             opacity_threshold: Threshold of opacity.
             area_threshold: Threshold of the closed polygon area.
             fpath: The path to save the reinitialized SVG.
