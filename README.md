@@ -22,6 +22,8 @@ Diffusion Model. It can generate high-quality SVGs based on text prompts.
 
 ## Installation
 
+#### 1. Install Environment
+
 You can follow the steps below to quickly get up and running with SVGDreamer.
 These steps will let you run quick inference locally.
 
@@ -37,9 +39,18 @@ or using docker,
 docker run --name svgdreamer --gpus all -it --ipc=host ximingxing/svgrender:v1 /bin/bash
 ```
 
-and **download pretrained models** by setting `diffuser.download=True` in `/conf/config.yaml` the first time you run it.
+#### 2. Download Pretrained Stable Diffusion Model
 
+**Downloading pretrained SD models** by setting `diffuser.download=True` in `/conf/config.yaml` the first time you run
+it.
 (Alternatively, you can append `diffuser.download=True` to the end of the script.)
+
+Or you can still download it manually,
+
+```
+Model Link: https://huggingface.co/stabilityai/stable-diffusion-2-1-base
+Default model is stored in the `/home/user/.cache/huggingface/hub/models--stabilityai--stable-diffusion-2-1-base`.
+```
 
 ## 🔥 Quickstart
 
@@ -162,7 +173,7 @@ python svgdreamer.py x=pixelart "prompt='Darth vader with lightsaber.'" result_p
 python svgdreamer.py x=lowpoly "prompt='A picture of a bald eagle. low-ploy. polygon. minimal flat 2d vector'" neg_prompt='' result_path='./logs/BaldEagle'
 ```
 
-#### Sketch style
+#### ✍️ Sketch style
 
 **Prompt:** A free-hand drawing of A speeding Lamborghini. black and white drawing. <br/>
 **Preview:**
@@ -180,7 +191,7 @@ python svgdreamer.py x=lowpoly "prompt='A picture of a bald eagle. low-ploy. pol
 python svgdreamer.py x=sketch "prompt='A free-hand drawing of A speeding Lamborghini. black and white drawing.'" neg_prompt='' result_path='./logs/Lamborghini'
 ```
 
-#### Ink and Wash style
+#### ✍️ Ink and Wash style
 
 **Prompt:** Big Wild Goose Pagoda. ink style. Minimalist abstract art grayscale watercolor. empty background <br/>
 **Preview:**
@@ -205,12 +216,13 @@ python svgdreamer.py x=iconography "prompt='illustration of an New York City, in
 python svgdreamer.py x=painting "prompt='self portrait of Van Gogh. oil painting. cmyk portrait. multi colored. defiant and beautiful. cmyk. expressive eyes.'" result_path='./logs/VanGogh-Portrait'
 python svgdreamer.py x=lowpoly "prompt='wolf. low poly. minimal flat 2d vector. lineal color. trending on artstation.'" neg_prompt='' save_step=50 x.grid=30 result_path='./logs/Wolf' multirun=True
 python svgdreamer.py x=lowpoly "prompt='A picture of a scarlet macaw, low-ploy, polygon, minimal flat 2d vector'" "neg_prompt='unrealistic, blurry, low quality, out of focus, ugly, low contrast, dull, low res, low-resolution, oversaturation, worst quality, normal quality, text, watermark, logo, banner, extra digits, cropped, jpeg artifacts, signature, username, error, sketch ,duplicate, monochrome, horror, geometry, mutation, disgusting'" save_step=50 result_path='.log/ScarletMacaw' mv=True multirun=True
-python svgdreamer.py x=ink "prompt='The lonely Big Wild Goose Pagoda. ink style. Minimalist abstract art grayscale watercolor.'" neg_prompt='text, extra, missing, unfinished, watermark, signature, username, scan, frame' result_path='./logs/BigWildGoosePagoda'
-python svgdreamer.py x=ink "prompt='Big Wild Goose Pagoda. ink style. Minimalist abstract art grayscale watercolor. simple painting style'" neg_prompt='text, extra, missing, unfinished, watermark, signature, username, scan, frame' result_path='./logs/BigWildGoosePagoda'
+python svgdreamer.py x=ink "prompt='The lonely Big Wild Goose Pagoda. ink style. Minimalist abstract art grayscale watercolor.'" "neg_prompt='text, extra, missing, unfinished, watermark, signature, username, scan, frame'" result_path='./logs/BigWildGoosePagoda'
+python svgdreamer.py x=ink "prompt='Big Wild Goose Pagoda. ink style. Minimalist abstract art grayscale watercolor. simple painting style'" "neg_prompt='text, extra, missing, unfinished, watermark, signature, username, scan, frame'" result_path='./logs/BigWildGoosePagoda'
 ````
 
 ## 🔑 Tips
 
+- I highly recommend turning on xformer `enable_xformers=True` to speed up optimization.
 - `x.vpsd.t_schedule` greatly affects the style of the result. Please try more.
 - `neg_prompt` negative prompts affect the quality of the results.
 
