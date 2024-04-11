@@ -201,10 +201,12 @@ python svgdreamer.py x=ink "prompt='Big Wild Goose Pagoda. ink style. Minimalist
 #### More Cases
 
 ````shell
-python svgdreamer.py x=iconography "prompt='illustration of an New York City, in the style of propaganda poster, vivid colours, detailed, sunny day, attention to detail, 8k.'" result_path='./logs/NewYorkCity'
-python svgdreamer.py x=iconography "prompt='A colorful German shepherd in vector art. tending on artstation.'" result_path='./logs/GermanShepherd'
-# Style: painting
+python svgdreamer.py x=iconography "prompt='illustration of an New York City, in vector art, tending on artstation.'" result_path='./logs/NewYorkCity'
 python svgdreamer.py x=painting "prompt='self portrait of Van Gogh. oil painting. cmyk portrait. multi colored. defiant and beautiful. cmyk. expressive eyes.'" result_path='./logs/VanGogh-Portrait'
+python svgdreamer.py x=lowpoly "prompt='wolf. low poly. minimal flat 2d vector. lineal color. trending on artstation.'" neg_prompt='' save_step=50 x.grid=30 result_path='./logs/Wolf' multirun=True
+python svgdreamer.py x=lowpoly "prompt='A picture of a scarlet macaw, low-ploy, polygon, minimal flat 2d vector'" "neg_prompt='unrealistic, blurry, low quality, out of focus, ugly, low contrast, dull, low res, low-resolution, oversaturation, worst quality, normal quality, text, watermark, logo, banner, extra digits, cropped, jpeg artifacts, signature, username, error, sketch ,duplicate, monochrome, horror, geometry, mutation, disgusting'" save_step=50 result_path='.log/ScarletMacaw' mv=True multirun=True
+python svgdreamer.py x=ink "prompt='The lonely Big Wild Goose Pagoda. ink style. Minimalist abstract art grayscale watercolor.'" neg_prompt='text, extra, missing, unfinished, watermark, signature, username, scan, frame' result_path='./logs/BigWildGoosePagoda'
+python svgdreamer.py x=ink "prompt='Big Wild Goose Pagoda. ink style. Minimalist abstract art grayscale watercolor. simple painting style'" neg_prompt='text, extra, missing, unfinished, watermark, signature, username, scan, frame' result_path='./logs/BigWildGoosePagoda'
 ````
 
 ## 🔑 Tips
