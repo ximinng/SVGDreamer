@@ -16,9 +16,9 @@
 python svgdreamer.py x=iconography "prompt='A colorful German shepherd in vector art. tending on artstation.'" result_path='./logs/GermanShepherd' seed=26226
 ```
 
-### Case: German shepherd
+### Case: Snow-Covered Castle
 
-**Prompt:** A colorful German shepherd in vector art. tending on artstation <br/>
+**Prompt:** a beautiful snow-covered castle, a stunning masterpiece, trees, rays of the sun, Leonid Afremov <br/>
 **style:** Iconography <br/>
 **Preview:**
 
