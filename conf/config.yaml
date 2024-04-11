@@ -11,7 +11,7 @@ skip_sive: True # optimize from scratch without SIVE init
 # Accelerate config
 state:
   cpu: False # use cpu
-  mprec: no # mixed precision, choices: 'no', 'fp16', 'bf16'
+  mprec: 'no' # mixed precision, choices: 'no', 'fp16', 'bf16'
 
 # Diffusers config
 diffuser:
@@ -46,9 +46,10 @@ hydra:
   run:
     # output directory for normal runs
     # warning: make sure that the L53-55 of './libs/model_state.py' and 'dir' are modified together
-    dir: ./${result_path}/SVGDreamer-${now:%Y-%m-%d-%H-%M}
+    dir: ./${result_path}/SVGDreamer-${now:%Y-%m-%d_%H-%M-%S}
 
 # default settings
 defaults:
   - _self_
   - x: ~
+  - override hydra/job_logging: disabled # Outputs only to stdout (no log file)

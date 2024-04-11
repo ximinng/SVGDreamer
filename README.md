@@ -201,6 +201,8 @@ python svgdreamer.py x=ink "prompt='Big Wild Goose Pagoda. ink style. Minimalist
 #### More Cases
 
 ````shell
+python svgdreamer.py x=iconography "prompt='illustration of an New York City, in the style of propaganda poster, vivid colours, detailed, sunny day, attention to detail, 8k.'" result_path='./logs/NewYorkCity'
+python svgdreamer.py x=iconography "prompt='A colorful German shepherd in vector art. tending on artstation.'" result_path='./logs/GermanShepherd'
 # Style: painting
 python svgdreamer.py x=painting "prompt='self portrait of Van Gogh. oil painting. cmyk portrait. multi colored. defiant and beautiful. cmyk. expressive eyes.'" result_path='./logs/VanGogh-Portrait'
 ````

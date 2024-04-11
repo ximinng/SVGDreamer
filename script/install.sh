@@ -1,12 +1,12 @@
 #!/bin/bash
 eval "$(conda shell.bash hook)"
 
-conda create --name svgrender python=3.10
+conda create --name svgrender python=3.10 --yes
 conda activate svgrender
 
 echo "The conda environment was successfully created"
 
-conda install pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 cudatoolkit=11.3 -c pytorch
+conda install pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 cudatoolkit=11.3 -c pytorch --yes
 
 echo "Pytorch installation is complete. version: 1.12.1"
 
@@ -30,7 +30,7 @@ pip install diffusers==0.20.2
 echo "Diffusers installation is complete. version: 0.20.2"
 # if xformers doesnt install properly with conda try installing with pip using the code below
 # pip install --pre -U xformers
-conda install xformers -c xformers
+conda install xformers -c xformers --yes
 
 echo "xformers installation is complete."
 
