@@ -161,7 +161,7 @@ class CompPainter:
                 self.shape_groups.append(path_group)
                 self.cur_shape_groups.append(path_group)
 
-            elif self.style == 'pixelart':
+            elif self.style in ['pixelart', 'low-poly']:
                 fill_color_init = torch.FloatTensor(np.random.uniform(size=[4]))
                 fill_color_init[-1] = 1.0
 
@@ -178,7 +178,7 @@ class CompPainter:
                     self.shape_groups.append(path_group)
                     self.cur_shape_groups.append(path_group)
 
-            elif self.style == 'sketch':
+            elif self.style in ['sketch', 'ink']:
                 path = self.get_path()
                 self.shapes.append(path)
                 self.cur_shapes.append(path)

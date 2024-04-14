@@ -40,7 +40,7 @@ sive:
     attn_coeff: 1.0 # attn fusion, w * cross-attn + (1-w) * self-attn
   mask_tau: 0.3 # the threshold used to convert the attention map into a mask
   bg:
-    style: "iconography" # 'iconography' ,"pixelart", "sketch", 'painting', 'ink'
+    style: "ink" # 'iconography' ,"pixelart", "sketch", 'painting', 'ink'
     num_iter: 10
     num_paths: 256
     path_schedule: 'repeat' # 'repeat', 'list'
@@ -60,7 +60,7 @@ sive:
     use_distance_weighted_loss: False
     xing_loss_weight: 0.001
   fg:
-    style: "iconography" # 'iconography' ,"pixelart", "sketch", 'painting', 'ink'
+    style: "ink" # 'iconography' ,"pixelart", "sketch", 'painting', 'ink'
     num_iter: 10
     num_paths: 256 # number of strokes
     path_schedule: 'repeat' # 'repeat', 'list'

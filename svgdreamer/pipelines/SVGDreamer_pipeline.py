@@ -35,7 +35,9 @@ import ImageReward as RM
 class SVGDreamerPipeline(ModelState):
 
     def __init__(self, args):
+        # assert
         assert args.x.style in ["iconography", "pixelart", "low-poly", "painting", "sketch", "ink"]
+        args.skip_sive = True if args.x.style in ["pixelart", "low-poly"] else args.skip_sive
         assert args.x.vpsd.n_particle >= args.x.vpsd.vsd_n_particle
         assert args.x.vpsd.n_particle >= args.x.vpsd.phi_n_particle
         assert args.x.vpsd.n_phi_sample >= 1
