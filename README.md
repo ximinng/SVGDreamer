@@ -47,10 +47,8 @@ it.
 
 Or you can still download it manually,
 
-```
-Model Link: https://huggingface.co/stabilityai/stable-diffusion-2-1-base
-Default model is stored in the `/home/user/.cache/huggingface/hub/models--stabilityai--stable-diffusion-2-1-base`.
-```
+- Model Link: https://huggingface.co/stabilityai/stable-diffusion-2-1-base
+- Default model is stored in the `/home/user/.cache/huggingface/hub/models--stabilityai--stable-diffusion-2-1-base`
 
 ## 🔥 Quickstart
 
