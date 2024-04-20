@@ -101,7 +101,7 @@ python svgdreamer.py x=iconography_s1 skip_sive=False "prompt='a man in an astro
 
 ### VPSD
 
-#### Iconography style
+#### ✍️ Iconography style
 
 **Prompt:** Sydney opera house. oil painting. by Van Gogh <br/>
 **Preview:**
@@ -119,7 +119,7 @@ python svgdreamer.py x=iconography_s1 skip_sive=False "prompt='a man in an astro
 python svgdreamer.py x=iconography "prompt='Sydney opera house. oil painting. by Van Gogh'" result_path='./logs/SydneyOperaHouse-OilPainting'
 ```
 
-#### Painting style
+#### ✍️ Painting style
 
 **Prompt:** Abstract Vincent van Gogh Oil Painting Elephant, featuring earthy tones of green and brown <br/>
 **Preview:**
@@ -137,7 +137,7 @@ python svgdreamer.py x=iconography "prompt='Sydney opera house. oil painting. by
 python svgdreamer.py x=painting "prompt='Abstract Vincent van Gogh Oil Painting Elephant, featuring earthy tones of green and brown.'" x.num_paths=256 result_path='./logs/Elephant-OilPainting'
 ```
 
-#### Pixel-Art style
+#### ✍️ Pixel-Art style
 
 **Prompt:** Darth vader with lightsaber <br/>
 **Preview:**
@@ -155,7 +155,7 @@ python svgdreamer.py x=painting "prompt='Abstract Vincent van Gogh Oil Painting 
 python svgdreamer.py x=pixelart "prompt='Darth vader with lightsaber.'" result_path='./logs/DarthVader'
 ```
 
-#### Low-poly style
+#### ✍️Low-poly style
 
 **Prompt:** A picture of a bald eagle. low-ploy. polygon. minimal flat 2d vector <br/>
 **Preview:**
