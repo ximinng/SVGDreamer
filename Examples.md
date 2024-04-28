@@ -128,9 +128,36 @@ python svgdreamer.py x=sketch "prompt='self portrait. Van Gogh.'" "neg_prompt='t
 python svgdreamer.py x=ink "prompt='The Big Wild Goose Pagoda. ink style. Minimalist abstract art grayscale watercolor.'" "neg_prompt='text, extra, missing, unfinished, watermark, signature, username, scan, frame'" result_path='./logs/BigWildGoosePagoda_neg' seed=130890
 ```
 
-### Others
+### Case: Horse
+
+**Prompt:** Black and white. simple horse flash tattoo. ink style. Minimalist abstract art grayscale watercolor. simple
+painting style. <br/>
+**style:** Ink and Wash <br/>
+**Preview:**
+
+|                      Particle 1                      |                      Particle 2                      |                      Particle 3                      |                     Particle 4                     |                      Particle 5                      |                      Particle 6                      |
+|:----------------------------------------------------:|:----------------------------------------------------:|:----------------------------------------------------:|:--------------------------------------------------:|:----------------------------------------------------:|:----------------------------------------------------:|
+| <img src="./assets/Ink-Horse/finetune_final_p0.svg"> | <img src="./assets/Ink-Horse/finetune_final_p1.svg"> | <img src="./assets/Ink-Horse/finetune_final_p2.svg"> | <img src="assets/Ink-Horse/finetune_final_p3.svg"> | <img src="./assets/Ink-Horse/finetune_final_p4.svg"> | <img src="./assets/Ink-Horse/finetune_final_p5.svg"> |
+
+**Script:**
+
+```shell
+python svgdreamer.py x=ink "prompt='Black and white. simple horse flash tattoo. ink style. Minimalist abstract art grayscale watercolor. simple painting style'" "neg_prompt='text, extra, missing, unfinished, watermark, signature, username, scan, frame'" x.num_paths=128 result_path='./logs/HorseInk'
+```
+
+### Case: Self Portrait, Van Gogh
+
+**Prompt:** self portrait of Van Gogh. oil painting. cmyk portrait. multi colored. defiant and beautiful. cmyk.
+expressive eyes. <br/>
+**style:** Painting <br/>
+**Preview:**
+
+|                            Particle 1                            |                            Particle 2                            |                            Particle 3                            |                           Particle 4                           |                            Particle 5                            |                            Particle 6                            |
+|:----------------------------------------------------------------:|:----------------------------------------------------------------:|:----------------------------------------------------------------:|:--------------------------------------------------------------:|:----------------------------------------------------------------:|:----------------------------------------------------------------:|
+| <img src="./assets/Painting-SelfPortrait/finetune_final_p0.svg"> | <img src="./assets/Painting-SelfPortrait/finetune_final_p1.svg"> | <img src="./assets/Painting-SelfPortrait/finetune_final_p2.svg"> | <img src="assets/Painting-SelfPortrait/finetune_final_p3.svg"> | <img src="./assets/Painting-SelfPortrait/finetune_final_p4.svg"> | <img src="./assets/Painting-SelfPortrait/finetune_final_p5.svg"> |
+
+**Script:**
 
 ````shell
 python svgdreamer.py x=painting "prompt='self portrait of Van Gogh. oil painting. cmyk portrait. multi colored. defiant and beautiful. cmyk. expressive eyes.'" x.num_paths=256 result_path='./logs/VanGogh-Portrait'
-python svgdreamer.py x=ink "prompt='Black and white. simple horse flash tattoo. ink style. Minimalist abstract art grayscale watercolor. simple painting style'" "neg_prompt='text, extra, missing, unfinished, watermark, signature, username, scan, frame'" x.num_paths=64 result_path='./logs/HorseInk'
 ````

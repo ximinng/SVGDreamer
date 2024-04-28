@@ -731,7 +731,7 @@ class PainterOptimizer:
 
 
 class LinearDecayWithKeepLRLambda:
-    """apply in LIVE stage"""
+    """apply in SIVE stage"""
 
     def __init__(self, init_lr, keep_ratio, decay_every, decay_ratio):
         self.init_lr = init_lr
@@ -753,7 +753,7 @@ class LinearDecayWithKeepLRLambda:
 
 
 class CosineWithWarmupLRLambda:
-    """apply in fine-tuning stage"""
+    """apply in VPSD stage"""
 
     def __init__(self, num_steps, warmup_steps, warmup_start_lr, warmup_end_lr, cosine_end_lr):
         self.n_steps = num_steps
