@@ -81,6 +81,12 @@ class ImageReward(nn.Module):
         self.mean = 0.16717362830052426
         self.std = 1.0333394966054072
 
+    def text_tokenizer(self, prompt):
+        # text encode
+        text_input = self.blip.tokenizer(prompt, padding='max_length', truncation=True, max_length=35,
+                                         return_tensors="pt").to(self.device)
+        return text_input
+
     def score_gard(self, prompt_ids, prompt_attention_mask, image):
 
         image_embeds = self.blip.visual_encoder(image)

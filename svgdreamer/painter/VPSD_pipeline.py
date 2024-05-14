@@ -24,7 +24,12 @@ from svgdreamer.diffusers_warp import init_StableDiffusion_pipeline, init_diffus
 
 class VectorizedParticleSDSPipeline(torch.nn.Module):
 
-    def __init__(self, model_cfg: DictConfig, diffuser_cfg: DictConfig, guidance_cfg: DictConfig, device: torch.device):
+    def __init__(self,
+                 model_cfg: DictConfig,
+                 diffuser_cfg: DictConfig,
+                 guidance_cfg: DictConfig,
+                 device: torch.device,
+                 dtype):
         super().__init__()
         self.device = device
         assert guidance_cfg.n_particle >= guidance_cfg.vsd_n_particle
@@ -32,7 +37,7 @@ class VectorizedParticleSDSPipeline(torch.nn.Module):
 
         pipe_kwargs = {
             "device": self.device,
-            "torch_dtype": torch.float32,
+            "torch_dtype": torch.float16 if dtype == 'fp16' else torch.float32,
             "local_files_only": not diffuser_cfg.download,
             "force_download": diffuser_cfg.force_download,
             "resume_download": diffuser_cfg.resume_download,
@@ -569,7 +574,7 @@ class VectorizedParticleSDSPipeline(torch.nn.Module):
         noise_pred_est = self.get_noise_map(noise_pred_est, self.guidance_scale_lora, use_cfg=False)
 
         # w(t), sigma_t^2
-        w = (1 - self.alphas[self.t])
+        w = (1 - self.alphas[self.t]).to(pred_rgb.dtype)
         grad = grad_scale * w * (noise_pred_pretrain - noise_pred_est.detach())
         grad = torch.nan_to_num(grad)
 

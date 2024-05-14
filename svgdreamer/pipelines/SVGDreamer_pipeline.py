@@ -445,7 +445,8 @@ class SVGDreamerPipeline(ModelState):
         path_reinit = self.x_cfg.path_reinit
 
         # init VPSD
-        pipeline = VectorizedParticleSDSPipeline(vpsd_model_cfg, self.args.diffuser, guidance_cfg, self.device)
+        pipeline = VectorizedParticleSDSPipeline(vpsd_model_cfg, self.args.diffuser, guidance_cfg,
+                                                 self.device, self.args.state.mprec)
         # init reward model
         reward_model = None
         if guidance_cfg.phi_ReFL:
@@ -522,7 +523,7 @@ class SVGDreamerPipeline(ModelState):
                     self.frame_idx += 1
 
                 L_guide, grad, latents, t_step = pipeline.variational_score_distillation(
-                    raster_imgs,
+                    raster_imgs.to(self.weight_dtype),
                     self.step,
                     prompt=[text_prompt],
                     negative_prompt=self.args.neg_prompt,
