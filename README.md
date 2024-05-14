@@ -218,10 +218,6 @@ python svgdreamer.py x=ink "prompt='Big Wild Goose Pagoda. ink style. Minimalist
 - `neg_prompt` negative prompts affect the quality of the results
 - By setting `state.mprec='fp16'`, you can significantly reduce GPU memory usage.
 
-```shell
-CUDA_VISIBLE_DEVICES=0 python svgdreamer.py x=iconography skip_sive=True "prompt='Sydney opera house. oil painting. by Van Gogh'" result_path='./logs-reward/Sydney-reward' state.mprec='fp16' x.vpsd.phi_ReFL=True multirun=True srange='[10,12]'
-```
-
 ## 📋 TODO
 
 - [x] Release the code.
