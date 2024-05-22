@@ -439,14 +439,14 @@ class SVGDreamerPipeline(ModelState):
 
         # for convenience
         guidance_cfg = self.x_cfg.vpsd
-        vpsd_model_cfg = self.x_cfg.vpsd_model_cfg
+        sd_model_cfg = self.x_cfg.vpsd_model_cfg
         n_particle = guidance_cfg.n_particle
         total_step = guidance_cfg.num_iter
         path_reinit = self.x_cfg.path_reinit
 
         # init VPSD
-        pipeline = VectorizedParticleSDSPipeline(vpsd_model_cfg, self.args.diffuser, guidance_cfg,
-                                                 self.device, self.args.state.mprec)
+        pipeline = VectorizedParticleSDSPipeline(
+            sd_model_cfg, self.args.diffuser, guidance_cfg, self.device, self.weight_dtype)
         # init reward model
         reward_model = None
         if guidance_cfg.phi_ReFL:
@@ -529,7 +529,7 @@ class SVGDreamerPipeline(ModelState):
                     negative_prompt=self.args.neg_prompt,
                     grad_scale=guidance_cfg.grad_scale,
                     enhance_particle=guidance_cfg.particle_aug,
-                    im_size=model2res(vpsd_model_cfg.model_id)
+                    im_size=model2res(sd_model_cfg.model_id)
                 )
 
                 # Xing Loss for Self-Interaction Problem

@@ -20,8 +20,8 @@ from svgdreamer.pipelines.SVGDreamer_pipeline import SVGDreamerPipeline
 @hydra.main(version_base=None, config_path="conf", config_name='config')
 def main(cfg: omegaconf.DictConfig):
     """
-    The project configuration is stored in './conf/config.yaml’
-    And style configurations are stored in './conf/x/iconographic.yaml’
+    The project configuration is stored in './conf/config.yaml'
+    And style configurations are stored in './conf/x/iconographic.yaml'
     """
 
     # set seed

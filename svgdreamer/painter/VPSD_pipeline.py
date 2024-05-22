@@ -3,12 +3,9 @@
 # Author: XiMing Xing
 # Description:
 import re
-import PIL
-from PIL import Image
 from typing import Any, List, Optional, Union, Dict
 from omegaconf import DictConfig
 
-import numpy as np
 import torch
 import torch.nn.functional as F
 from torchvision import transforms
