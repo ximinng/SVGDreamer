@@ -29,6 +29,7 @@ class VectorizedParticleSDSPipeline(torch.nn.Module):
                  dtype):
         super().__init__()
         self.device = device
+        self.dtype = torch.float16 if precision == 'fp16' else torch.float32
         assert guidance_cfg.n_particle >= guidance_cfg.vsd_n_particle
         assert guidance_cfg.n_particle >= guidance_cfg.phi_n_particle
 
@@ -450,7 +451,7 @@ class VectorizedParticleSDSPipeline(torch.nn.Module):
             cross_attention_kwargs=self.lora_cross_attention_kwargs,
         ).sample
 
-        rewards = torch.tensor(weight, dtype=torch.float32, device=self.device)
+        rewards = torch.tensor(weight, dtype=self.dtype, device=self.device)
         return rewards * F.mse_loss(noise_pred, target, reduction="mean")
 
     def schedule_timestep(self, step):
