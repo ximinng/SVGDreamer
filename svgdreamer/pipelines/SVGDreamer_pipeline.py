@@ -446,7 +446,7 @@ class SVGDreamerPipeline(ModelState):
 
         # init VPSD
         pipeline = VectorizedParticleSDSPipeline(
-            sd_model_cfg, self.args.diffuser, guidance_cfg, self.device, self.weight_dtype)
+            sd_model_cfg, self.args.diffuser, guidance_cfg, self.device, self.weight_str)
         # init reward model
         reward_model = None
         if guidance_cfg.phi_ReFL:
