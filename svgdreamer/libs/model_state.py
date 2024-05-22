@@ -54,10 +54,10 @@ class ModelState:
         # if self.state_cfg.tensorboard:
         #     self.log_with.append(LoggerType.TENSORBOARD)
 
-        self.weight_str = args.state.get("mprec", 'no')
+        self.dtype = args.state.get("mprec", 'no')
         """HuggingFace Accelerator"""
         self.accelerator = Accelerator(
-            mixed_precision=self.weight_str,
+            mixed_precision=self.dtype,
             cpu=args.state.get('cpu', False),
             log_with=None if len(self.log_with) == 0 else self.log_with,
             project_dir=self.monitor_dir,
