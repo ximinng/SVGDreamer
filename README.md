@@ -232,7 +232,7 @@ The project is built based on the following repository:
 - [huggingface/diffusers](https://github.com/huggingface/diffusers)
 - [ximinng/DiffSketcher](https://github.com/ximinng/DiffSketcher)
 - [THUDM/ImageReward](https://github.com/THUDM/ImageReward)
-- [ximinng//PyTorch-SVGRender](https://github.com/ximinng/PyTorch-SVGRender)
+- [ximinng/PyTorch-SVGRender](https://github.com/ximinng/PyTorch-SVGRender)
 
 We gratefully thank the authors for their wonderful works.
 
