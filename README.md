@@ -89,12 +89,12 @@ art <br/>
 
 |                    attn-map                    |                      bg init                      |                      fg init                      |                      bg final                      |                      fg final                      |                      final                       |
 |:----------------------------------------------:|:-------------------------------------------------:|:-------------------------------------------------:|:--------------------------------------------------:|:--------------------------------------------------:|:------------------------------------------------:|
-| <img src="./assets/SIVE-astronaut-1/attn.png"> | <img src="./assets/SIVE-astronaut-1/init_bg.svg"> | <img src="./assets/SIVE-astronaut-1/init_fg.svg"> | <img src="./assets/SIVE-astronaut-1/final_bg.svg"> | <img src="./assets/SIVE-astronaut-1/final_fg.svg"> | <img src="./assets/SIVE-astronaut-1/result.svg"> |
+| <img src="./assets/SIVE-astronaut-1/attn.png"> | <img src="./assets/SIVE-astronaut-1/init_bg.svg"> | <img src="./assets/SIVE-astronaut-1/init_fg.svg"> | <img src="./assets/SIVE-astronaut-1/bg_final.svg"> | <img src="./assets/SIVE-astronaut-1/fg_final.svg"> | <img src="./assets/SIVE-astronaut-1/result.svg"> |
 
 **Script:**
 
 ```shell
-python svgdreamer.py x=iconography_s1 skip_sive=False "prompt='a man in an astronaut suit walking across a desert, inspired by James Gurney, space art, planet mars in the background, banner, floating beside planets'" token_ind=5 x.vpsd.t_schedule='randint' result_path='./logs/astronaut_sive' multirun=True
+python svgdreamer.py x=iconography-s1 skip_sive=False "prompt='an astronaut walking across a desert, planet mars in the background, floating beside planets, space art'" token_ind=5 result_path='./logs/astronaut_sive' seed=116740
 ```
 
 ### VPSD

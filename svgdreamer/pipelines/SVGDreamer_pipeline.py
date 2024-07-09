@@ -692,28 +692,29 @@ class SVGDreamerPipeline(ModelState):
         bool_fg_attn_map = fg_attn_map > tau
         fg_mask = bool_fg_attn_map.astype(int)  # [w, h]
 
-        def shrink_mask_contour(mask, epsilon_factor=0.05, erosion_kernel_size=5, dilation_kernel_size=5):
+        def shrink_mask_contour(mask, epsilon_factor=0.1, erosion_kernel_size=36, dilation_kernel_size=3):
             """Shrink the contours of a binary mask image.
 
             Args:
                 mask (numpy.ndarray): Binary mask image.
-                epsilon_factor (float, optional): Factor for adjusting contour approximation precision. Defaults to 0.01.
+                epsilon_factor (float, optional): Factor for adjusting contour approximation precision. Defaults to 0.05.
                 erosion_kernel_size (int, optional): Size of the kernel for erosion operation. Defaults to 3.
                 dilation_kernel_size (int, optional): Size of the kernel for dilation operation. Defaults to 3.
 
             Returns:
                 numpy.ndarray: Mask image with shrunk contours.
             """
+            # Convert mask to uint8 type and scale to 0-255
             mask = mask.astype(np.uint8) * 255
 
             # Find contours in the input image
-            contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-            # Approximate the contours
+            # Approximate and draw the contours
             for contour in contours:
                 epsilon = epsilon_factor * cv2.arcLength(contour, True)
                 approx = cv2.approxPolyDP(contour, epsilon, True)
-                cv2.drawContours(mask, [approx], 0, (255), -1)
+                cv2.drawContours(mask, [approx], 0, 255, -1)
 
             # Use erosion operation to further shrink the contours
             kernel_erode = np.ones((erosion_kernel_size, erosion_kernel_size), np.uint8)
@@ -723,6 +724,7 @@ class SVGDreamerPipeline(ModelState):
             kernel_dilate = np.ones((dilation_kernel_size, dilation_kernel_size), np.uint8)
             mask = cv2.dilate(mask, kernel_dilate, iterations=1)
 
+            # Convert mask back to binary
             mask = (mask / 255).astype(np.uint8)
             return mask
 
