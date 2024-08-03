@@ -114,7 +114,7 @@ python svgdreamer.py x=iconography-s1 skip_sive=False "prompt='an astronaut walk
 **Script:**
 
 ```shell
-python svgdreamer.py x=iconography "prompt='Sydney opera house. oil painting. by Van Gogh'" result_path='./logs/SydneyOperaHouse-OilPainting'
+python svgdreamer.py x=iconography "prompt='Sydney opera house. oil painting. by Van Gogh'" result_path='./logs/SydneyOperaHouse-OilPainting' state.mprec='fp16'
 ```
 
 #### ✍️ Painting style

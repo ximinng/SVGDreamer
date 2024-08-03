@@ -26,7 +26,7 @@ class VectorizedParticleSDSPipeline(torch.nn.Module):
                  diffuser_cfg: DictConfig,
                  guidance_cfg: DictConfig,
                  device: torch.device,
-                 dtype):
+                 precision: str):
         super().__init__()
         self.device = device
         self.dtype = torch.float16 if precision == 'fp16' else torch.float32
@@ -35,7 +35,7 @@ class VectorizedParticleSDSPipeline(torch.nn.Module):
 
         pipe_kwargs = {
             "device": self.device,
-            "torch_dtype": torch.float16 if dtype == 'fp16' else torch.float32,
+            "torch_dtype": torch.float16 if precision == 'fp16' else torch.float32,
             "local_files_only": not diffuser_cfg.download,
             "force_download": diffuser_cfg.force_download,
             "resume_download": diffuser_cfg.resume_download,
