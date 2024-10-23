@@ -1,6 +1,7 @@
 #!/bin/bash
 eval "$(conda shell.bash hook)"
 
+conda config --set solver classic
 conda create --name svgrender python=3.10 --yes
 conda activate svgrender
 
