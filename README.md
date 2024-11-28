@@ -6,17 +6,19 @@
 [![blog](https://img.shields.io/badge/Blog-EN-9195F6)](https://huggingface.co/blog/xingxm/svgdreamer)
 [![blog](https://img.shields.io/badge/Blog-CN-9195F6)](https://mp.weixin.qq.com/s/QEBiP-xLVvQVoV_9H2Id7g)
 
-This repository contains our official implementation of the CVPR 2024 paper: SVGDreamer: Text-Guided SVG Generation with
-Diffusion Model. It can generate high-quality SVGs based on text prompts.
+This repository contains the official implementation of our CVPR 2024 paper, "SVGDreamer: Text-Guided SVG Generation
+with Diffusion Model." The method leverages a diffusion-based approach to produce high-quality SVGs guided by text
+prompts.
 
 ![title](./assets/illustrate.png)
 ![title](./assets/teaser_svg_asset.png)
 
 ## :new: Update
 
-- [03/2024] 🔥 We have released the **code** for [SVGDreamer](https://ximinng.github.io/SVGDreamer-project/).
-- [02/2024] 🎉 **SVGDreamer accepted by CVPR2024.** 🎉
-- [12/2023] 🔥 We have released the **[SVGDreamer Paper](https://arxiv.org/abs/2312.16476)**. SVGDreamer is
+- [11/2024] 🔥 **We released the [SVGDreamer++](https://arxiv.org/abs/2411.17832), offering stronger visual representation and improved editing capabilities.**
+- [03/2024] 🔥 We released the **code** for [SVGDreamer](https://ximinng.github.io/SVGDreamer-project/).
+- [02/2024] 🎉 SVGDreamer accepted by CVPR2024. 🎉
+- [12/2023] 🔥 We released the **[SVGDreamer Paper](https://arxiv.org/abs/2312.16476)**. SVGDreamer is
   a novel text-guided vector graphics synthesis method. This method considers both the editing of vector graphics and
   the quality of the synthesis.
 
@@ -50,7 +52,7 @@ Or you can still download it manually,
 - Model Link: https://huggingface.co/stabilityai/stable-diffusion-2-1-base
 - Default model is stored in the `/home/user/.cache/huggingface/hub/models--stabilityai--stable-diffusion-2-1-base`
 
-## 🔥 Quickstart
+## 🔥 Quickstart: synthesize **6** SVGs at once 
 
 ### SIVE + VPSD
 
