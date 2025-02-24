@@ -1,10 +1,10 @@
 # SVGDreamer: Text Guided SVG Generation with Diffusion Model
 
-[![cvpr24](https://img.shields.io/badge/CVPR-2024-387ADF.svg)](https://arxiv.org/abs/2312.16476)
-[![arXiv](https://img.shields.io/badge/arXiv-2312.16476-b31b1b.svg)](https://arxiv.org/abs/2312.16476)
-[![website](https://img.shields.io/badge/Website-Gitpage-4CCD99)](https://ximinng.github.io/SVGDreamer-project/)
-[![blog](https://img.shields.io/badge/Blog-EN-9195F6)](https://huggingface.co/blog/xingxm/svgdreamer)
-[![blog](https://img.shields.io/badge/Blog-CN-9195F6)](https://mp.weixin.qq.com/s/QEBiP-xLVvQVoV_9H2Id7g)
+[![CVPR 2024](https://img.shields.io/badge/CVPR%202024-Paper-4169E1?style=for-the-badge&logo=arxiv&logoColor=white)](https://arxiv.org/abs/2312.16476)  
+[![arXiv](https://img.shields.io/badge/arXiv-2312.16476-8A2BE2?style=for-the-badge&logo=arxiv&logoColor=white)](https://arxiv.org/abs/2312.16476)  
+[![Project Website](https://img.shields.io/badge/Website-Project%20Page-4682B4?style=for-the-badge&logo=github&logoColor=white)](https://ximinng.github.io/SVGDreamer-project/)  
+[![English Blog](https://img.shields.io/badge/Blog-English-00CED1?style=for-the-badge&logo=huggingface&logoColor=white)](https://huggingface.co/blog/xingxm/svgdreamer)  
+[![中文博客](https://img.shields.io/badge/博客-中文-1E90FF?style=for-the-badge&logo=zhihu&logoColor=white)](https://zhuanlan.zhihu.com/p/687525994)
 
 This repository contains the official implementation of our CVPR 2024 paper, "SVGDreamer: Text-Guided SVG Generation
 with Diffusion Model." The method leverages a diffusion-based approach to produce high-quality SVGs guided by text
@@ -13,46 +13,58 @@ prompts.
 ![title](./assets/illustrate.png)
 ![title](./assets/teaser_svg_asset.png)
 
-## :new: Update
+## :new: Latest Update
 
-- [11/2024] 🔥 **We released the [SVGDreamer++](https://arxiv.org/abs/2411.17832), offering stronger visual representation and improved editing capabilities.**
+- [11/2024] 🔥 **We released the [SVGDreamer++](https://arxiv.org/abs/2411.17832), offering stronger visual
+  representation and improved editing capabilities.**
 - [03/2024] 🔥 We released the **code** for [SVGDreamer](https://ximinng.github.io/SVGDreamer-project/).
 - [02/2024] 🎉 SVGDreamer accepted by CVPR2024. 🎉
 - [12/2023] 🔥 We released the **[SVGDreamer Paper](https://arxiv.org/abs/2312.16476)**. SVGDreamer is
   a novel text-guided vector graphics synthesis method. This method considers both the editing of vector graphics and
   the quality of the synthesis.
 
-## Installation
+## 📌 Installation Guide
 
-#### 1. Install Environment
+### 🛠️ Step 1: Set Up the Environment
 
-You can follow the steps below to quickly get up and running with SVGDreamer.
-These steps will let you run quick inference locally.
+To quickly get started with **SVGDreamer**, follow the steps below.  
+These instructions will help you run **quick inference locally**.
 
-In the top level directory run,
+#### 🚀 **Option 1: Standard Installation**
 
-```bash
-sh script/install.sh
-```
-
-or using docker,
+Run the following command in the **top-level directory**:
 
 ```shell
-docker run --name svgdreamer --gpus all -it --ipc=host ximingxing/svgrender:v1 /bin/bash
+bash script/install.sh
 ```
 
-#### 2. Download Pretrained Stable Diffusion Model
+#### 🐳 Option 2: Using Docker
 
-**Downloading pretrained SD models** by setting `diffuser.download=True` in `/conf/config.yaml` the first time you run
-it.
-(Alternatively, you can append `diffuser.download=True` to the end of the script.)
+```shell
+sudo bash script/run_svgdreamer_docker.sh
+```
 
-Or you can still download it manually,
+### 🛠️ Step 2: Download Pretrained Stable Diffusion Model
 
-- Model Link: https://huggingface.co/stabilityai/stable-diffusion-2-1-base
-- Default model is stored in the `/home/user/.cache/huggingface/hub/models--stabilityai--stable-diffusion-2-1-base`
+SVGDreamer requires a pretrained Stable Diffusion (SD) model.
+You can download it automatically or manually.
 
-## 🔥 Quickstart: synthesize **6** SVGs at once 
+#### 🔄 Option 1: Auto-Download (Recommended)
+
+Set `diffuser.download=True` in `/conf/config.yaml` before running SVGDreamer.
+Alternatively, append `diffuser.download=True` to the execution script.
+
+#### ⬇️ Option 2: Manual Download
+
+If you prefer manual setup, download the model from Hugging Face:
+
+🔗 Model Link: [Stable Diffusion 2.1 Base](https://huggingface.co/stabilityai/stable-diffusion-2-1-base)
+
+The model will be stored at:
+
+📁 Default Path: `/home/user/.cache/huggingface/hub/models--stabilityai--stable-diffusion-2-1-base`
+
+## 🔥 Quickstart: synthesize **6** SVGs at once
 
 ### SIVE + VPSD
 
@@ -70,8 +82,10 @@ realistic <br/>
 **Script:**
 
 ```shell
-python svgdreamer.py x=iconography skip_sive=False "prompt='an image of Batman. full body action pose, complete detailed body. white background. empty background, high quality, 4K, ultra realistic'" token_ind=4 x.vpsd.t_schedule='randint' result_path='./logs/batman' multirun=True
+python svgdreamer.py x=iconography skip_sive=False "prompt='an image of Batman. full body action pose, complete detailed body. white background. empty background, high quality, 4K, ultra realistic'" token_ind=4 x.sive.bg.num_iter=10 x.sive.fg.num_iter=10 x.vpsd.t_schedule='randint' result_path='./logs/batman' multirun=True
 ```
+
+🔹Parameter:
 
 - `x=iconography`(str): style configs
 - `skip_sive`(bool): enable the SIVE stage
@@ -209,11 +223,11 @@ python svgdreamer.py x=sketch "prompt='A free-hand drawing of A speeding Lamborg
 python svgdreamer.py x=ink "prompt='Big Wild Goose Pagoda. ink style. Minimalist abstract art grayscale watercolor. empty background'" neg_prompt='' result_path='./logs/BigWildGoosePagoda'
 ```
 
-#### More Cases
+#### 🎨 Supported Styles
 
-**See [Examples.md](https://github.com/ximinng/DiffSketcher/blob/main/Examples.md) for more cases.**
+**For more examples, visit [Examples.md](https://github.com/ximinng/DiffSketcher/blob/main/Examples.md)**.
 
-## 🔑 Tips
+## 🔑 Tips for Best Results
 
 - I highly recommend turning on xformer `enable_xformers=True` to speed up optimization.
 - `x.vpsd.t_schedule` greatly affects the style of the result. Please try more.

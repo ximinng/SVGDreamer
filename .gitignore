@@ -169,3 +169,5 @@ lightning_logs/*
 /tmp/
 /tmp_select/
 /tmp_select/*
+/logs/
+/logs/*
