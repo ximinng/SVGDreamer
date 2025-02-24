@@ -31,12 +31,14 @@ These instructions will help you run **quick inference locally**.
 Run the following command in the **top-level directory**:
 
 ```shell
+chmod +x script/install.sh
 bash script/install.sh
 ```
 
 #### 🐳 Option 2: Using Docker
 
 ```shell
+chmod +x script/run_svgdreamer_docker.sh
 sudo bash script/run_svgdreamer_docker.sh
 ```
 
