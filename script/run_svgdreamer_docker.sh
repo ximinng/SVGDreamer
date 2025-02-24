@@ -30,7 +30,7 @@ docker run --name $CONTAINER_NAME --gpus all -it --ipc=host -v $(pwd):/workspace
     python svgdreamer.py x=iconography skip_sive=False \\
       \"prompt='an image of Batman. full body action pose, complete detailed body. white background. empty background, high quality, 4K, ultra realistic'\" \\
       token_ind=4 x.vpsd.t_schedule='randint' \\
-      result_path='./logs/batman' multirun=True
+      result_path='./logs/batman' multirun=True diffuser.download=True
 "
 
 echo "==== SVGDreamer execution completed! ===="
