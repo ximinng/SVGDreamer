@@ -85,7 +85,7 @@ class AttentionStore(AttentionControl):
         self.step_store = self.get_empty_store()
 
     def get_average_attention(self):
-        print(f"step count: {self.cur_step}")
+        # print(f"step count: {self.cur_step}")
         average_attention = {
             key: [item / self.cur_step for item in self.attention_store[key]]
             for key in self.attention_store

@@ -80,7 +80,7 @@ realistic <br/>
 **Script:**
 
 ```shell
-python svgdreamer.py x=iconography skip_sive=False "prompt='an image of Batman. full body action pose, complete detailed body. white background. empty background, high quality, 4K, ultra realistic'" token_ind=4 x.sive.bg.num_iter=10 x.sive.fg.num_iter=10 x.vpsd.t_schedule='randint' result_path='./logs/batman' multirun=True
+python svgdreamer.py x=iconography skip_sive=False "prompt='an image of Batman. full body action pose, complete detailed body. white background. empty background, high quality, 4K, ultra realistic'" token_ind=4 x.vpsd.t_schedule='randint' result_path='./logs/batman' multirun=True
 ```
 
 🔹Parameter:

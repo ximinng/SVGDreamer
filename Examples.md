@@ -161,3 +161,9 @@ expressive eyes. <br/>
 ````shell
 python svgdreamer.py x=painting "prompt='self portrait of Van Gogh. oil painting. cmyk portrait. multi colored. defiant and beautiful. cmyk. expressive eyes.'" x.num_paths=256 result_path='./logs/VanGogh-Portrait'
 ````
+
+### Case: planet Saturn
+
+```shell
+python svgdreamer.py x=iconography-s1 skip_sive=False "prompt='An icon of the planet Saturn. minimal flat 2D vector icon. plain color background. trending on ArtStation.'" token_ind=6 x.sive.bg.num_iter=50 x.sive.fg.num_iter=50 x.vpsd.t_schedule='randint' result_path='./logs/Saturn' multirun=True state.mprec='fp16
+```

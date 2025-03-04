@@ -20,8 +20,8 @@ from torchvision import transforms
 from skimage.color import rgb2gray
 
 from svgdreamer.libs import ModelState, get_optimizer
-from svgdreamer.painter import (CompPainter, CompPainterOptimizer, xing_loss_fn, Painter, PainterOptimizer,
-                                CosineWithWarmupLRLambda, VectorizedParticleSDSPipeline, DiffusionPipeline)
+from svgdreamer.painter import CompPainter, CompPainterOptimizer, xing_loss_fn, Painter, PainterOptimizer, \
+    CosineWithWarmupLRLambda, VectorizedParticleSDSPipeline, DiffusionPipeline
 from svgdreamer.token2attn.attn_control import EmptyControl, AttentionStore
 from svgdreamer.token2attn.ptp_utils import view_images
 from svgdreamer.utils.plot import plot_img, plot_couple, plot_attn, save_image
@@ -38,8 +38,10 @@ class SVGDreamerPipeline(ModelState):
         # assert
         assert args.x.style in ["iconography", "pixelart", "low-poly", "painting", "sketch", "ink"]
         args.skip_sive = True if args.x.style in ["pixelart", "low-poly"] else args.skip_sive
-        assert args.x.vpsd.n_particle >= args.x.vpsd.vsd_n_particle
-        assert args.x.vpsd.n_particle >= args.x.vpsd.phi_n_particle
+        # assert args.x.vpsd.n_particle >= args.x.vpsd.vsd_n_particle
+        if args.x.vpsd.vsd_n_particle > args.x.vpsd.n_particle: args.x.vpsd.vsd_n_particle = args.x.vpsd.n_particle
+        # assert args.x.vpsd.n_particle >= args.x.vpsd.phi_n_particle
+        if args.x.vpsd.phi_n_particle > args.x.vpsd.n_particle: args.x.vpsd.phi_n_particle = args.x.vpsd.n_particle
         assert args.x.vpsd.n_phi_sample >= 1
 
         logdir_ = f"sd{args.seed}" \
@@ -123,15 +125,26 @@ class SVGDreamerPipeline(ModelState):
         self.close(msg="painterly rendering complete.")
 
     def SIVE_stage(self, text_prompt: str):
-        # init diffusion model
+        # Init diffusion model
         pipeline = DiffusionPipeline(self.x_cfg.sive_model_cfg, self.args.diffuser, self.device)
 
         merged_svg_paths = []
         merged_images = []
-        for i in range(self.vpsd_cfg.n_particle):
-            select_sample_path = self.result_path / f'select_sample_{i}.png'
-            # generate sample and attention map
-            fg_attn_map, bg_attn_map, controller = self.extract_ldm_attn(i,
+
+        successful_particles = 0
+        cur_idx = 0
+
+        while successful_particles < self.vpsd_cfg.n_particle:
+            if cur_idx >= self.vpsd_cfg.n_particle + 10:  # max attempts
+                self.print(f"Reached maximum attempts ({cur_idx}). "
+                           f"Only processed {successful_particles} particles successfully.")
+                break
+
+            self.print(f"Processing particle {cur_idx} "
+                       f"(successful so far: {successful_particles}/{self.vpsd_cfg.n_particle})")
+            select_sample_path = self.result_path / f'select_sample_{cur_idx}.png'
+            # Generate sample and attention map
+            fg_attn_map, bg_attn_map, controller = self.extract_ldm_attn(cur_idx,
                                                                          self.x_cfg.sive_model_cfg,
                                                                          pipeline,
                                                                          text_prompt,
@@ -139,18 +152,18 @@ class SVGDreamerPipeline(ModelState):
                                                                          self.sive_cfg.attn_cfg,
                                                                          self.im_size,
                                                                          self.args.token_ind)
-            # load selected file
+            # Load selected file
             select_img = self.target_file_preprocess(select_sample_path.as_posix())
             self.print(f"load target file from: {select_sample_path.as_posix()}")
 
-            # get objects by attention map
-            fg_img, bg_img, fg_mask, bg_mask = self.extract_object(i, select_img, fg_attn_map, bg_attn_map,
+            # Get objects by attention map
+            fg_img, bg_img, fg_mask, bg_mask = self.extract_object(cur_idx, select_img, fg_attn_map, bg_attn_map,
                                                                    tau=self.sive_cfg.mask_tau)
-            self.print(f"fg_img shape: {fg_img.shape}, bg_img: {bg_img.shape}")
+            # self.print(f"fg_img shape: {fg_img.shape}, bg_img: {bg_img.shape}")
 
-            # background rendering
-            self.print(f"-> background rendering: ")
-            bg_render_path = self.component_rendering(tag=f'{i}_bg',
+            # Background rendering
+            self.print(f"-> Background rendering: ")
+            bg_render_path = self.component_rendering(tag=f'{cur_idx}_bg',
                                                       prompt=text_prompt,
                                                       target_img=bg_img,
                                                       mask=bg_mask,
@@ -160,9 +173,14 @@ class SVGDreamerPipeline(ModelState):
                                                       optim_cfg=self.sive_optim,
                                                       log_png_dir=self.bg_png_logs_dir,
                                                       log_svg_dir=self.bg_svg_logs_dir)
-            # foreground rendering
-            self.print(f"-> foreground rendering: ")
-            fg_render_path = self.component_rendering(tag=f'{i}_fg',
+            if bg_render_path == 0:
+                self.print(f"Background rendering failed for particle {cur_idx}, trying next particle")
+                cur_idx += 1
+                continue
+
+            # Foreground rendering
+            self.print(f"-> Foreground rendering: ")
+            fg_render_path = self.component_rendering(tag=f'{cur_idx}_fg',
                                                       prompt=text_prompt,
                                                       target_img=fg_img,
                                                       mask=fg_mask,
@@ -172,8 +190,16 @@ class SVGDreamerPipeline(ModelState):
                                                       optim_cfg=self.sive_optim,
                                                       log_png_dir=self.fg_png_logs_dir,
                                                       log_svg_dir=self.fg_svg_logs_dir)
-            # merge foreground and background
-            merged_svg_path = self.result_path / f'SIVE_render_final_{i}.svg'
+            if fg_render_path == 0:
+                self.print(f"Foreground rendering failed for particle {cur_idx}, trying next particle")
+                cur_idx += 1
+                continue
+
+            successful_particles += 1
+            cur_idx += 1
+
+            # Merge foreground and background
+            merged_svg_path = self.result_path / f'SIVE_render_final_{cur_idx}.svg'
             merge_svg_files(
                 svg_path_1=bg_render_path,
                 svg_path_2=fg_render_path,
@@ -182,11 +208,11 @@ class SVGDreamerPipeline(ModelState):
                 out_size=(self.im_size, self.im_size)
             )
 
-            # foreground and background refinement
+            # Foreground and background refinement
             # Note: you are not allowed to add further paths here
             if self.sive_cfg.tog.reinit:
-                self.print("-> enable vector graphic refinement:")
-                merged_svg_path = self.refine_rendering(tag=f'{i}_refine',
+                self.print("-> Enable vector graphic refinement:")
+                merged_svg_path = self.refine_rendering(tag=f'{cur_idx}_refine',
                                                         prompt=text_prompt,
                                                         target_img=select_img,
                                                         canvas_size=(self.im_size, self.im_size),
@@ -194,22 +220,21 @@ class SVGDreamerPipeline(ModelState):
                                                         optim_cfg=self.sive_optim,
                                                         init_svg_path=merged_svg_path)
 
-            # svg-to-png, to tensor
-            merged_png_path = self.result_path / f'SIVE_render_final_{i}.png'
+            # Postprocess: svg-to-png & to tensor
+            merged_png_path = self.result_path / f'SIVE_render_final_{cur_idx}.png'
             cairosvg.svg2png(url=merged_svg_path.as_posix(), write_to=merged_png_path.as_posix())
-
-            # collect paths
-            merged_svg_paths.append(merged_svg_path)
+            merged_svg_paths.append(merged_svg_path)  # collect paths
             merged_images.append(self.target_file_preprocess(merged_png_path))
-            # empty attention record
+
+            # Clear attention recorder
             controller.reset()
 
-            self.print(f"Vector Particle {i} Rendering End...\n")
+            self.print(f"Vector Particle {cur_idx} Rendering End...\n")
 
-        # free the VRAM
+        # Free the VRAM
         del pipeline
         torch.cuda.empty_cache()
-        # update paths
+        # Update paths
         self.x_cfg.num_paths = self.sive_cfg.bg.num_paths + self.sive_cfg.fg.num_paths
 
         return merged_svg_paths, merged_images
@@ -257,6 +282,9 @@ class SVGDreamerPipeline(ModelState):
         if attention_map is not None:
             # init fist control points by attention_map
             attn_thresh, select_inds = renderer.attn_init_points(num_paths=sum(path_schedule), mask=mask)
+            # Warning: attention map failure
+            if len(select_inds) == 0: return 0
+
             # log attention, just once
             plot_attn(attention_map, attn_thresh, target_img, select_inds,
                       (self.sive_attn_dir / f"attention_{tag}_map.jpg").as_posix())
@@ -381,14 +409,16 @@ class SVGDreamerPipeline(ModelState):
         plot_img(img, self.refine_dir, fname=f"{tag}_before_refined")
 
         n_iter = render_cfg.num_iter
+        self.print(f"Total iters: {n_iter}")
+
         # build painter optimizer
         optimizer = CompPainterOptimizer(content_renderer, self.style, n_iter, optim_cfg)
         # init optimizer
         optimizer.init_optimizers()
 
-        print(f"=> n_point: {len(content_renderer.get_point_params())}, "
-              f"n_width: {len(content_renderer.get_width_params())}, "
-              f"n_color: {len(content_renderer.get_color_params())}")
+        self.print(f"=> n_point: {len(content_renderer.get_point_params())}, "
+                   f"n_width: {len(content_renderer.get_width_params())}, "
+                   f"n_color: {len(content_renderer.get_color_params())}")
 
         step = 0
         with tqdm(initial=step, total=n_iter, disable=not self.accelerator.is_main_process) as pbar:
@@ -434,7 +464,8 @@ class SVGDreamerPipeline(ModelState):
                    text_prompt: AnyStr,
                    init_svg_path: Union[List[AnyPath], AnyPath] = None,
                    init_image: Union[List[torch.Tensor], torch.Tensor] = None):
-        if not self.vpsd_cfg.use:
+        # print(f"self.vpsd_cfg.use: {self.vpsd_cfg.use}")
+        if self.vpsd_cfg.use is False:
             return
 
         # for convenience
@@ -784,10 +815,12 @@ class SVGDreamerPipeline(ModelState):
                                   generator=self.g_device)
         outputs_np = [np.array(img) for img in outputs.images]
         view_images(outputs_np, save_image=True, fp=gen_sample_path)
-        self.print(f"select_sample shape: {outputs_np[0].shape}")
+        # self.print(f"select_sample shape: {outputs_np[0].shape}")
 
         if attn_init:
-            """ldm cross-attention map"""
+            self.print(f"\nLDM attn-map logging:")
+
+            # Cross-attention map
             cross_attention_maps, tokens = \
                 pipeline.get_cross_attention([prompts],
                                              controller,
@@ -862,7 +895,7 @@ class SVGDreamerPipeline(ModelState):
             view_images(reversed_attn_map_vis, save_image=True,
                         fp=self.sive_attn_dir / f'reversed-fusion-attn-{iter}.png')
 
-            self.print(f"-> fusion attn_map: {attn_map.shape}")
+            self.print(f"-> fusion attn_map: {attn_map.shape} \n")
         else:
             attn_map = None
             inverse_attn = None

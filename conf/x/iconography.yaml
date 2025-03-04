@@ -41,7 +41,7 @@ sive:
   mask_tau: 0.3 # the threshold used to convert the attention map into a mask
   bg:
     style: "iconography" # 'iconography' ,"pixelart", "sketch", 'painting', 'ink'
-    num_iter: 10
+    num_iter: 50
     num_paths: 256
     path_schedule: 'repeat' # 'repeat', 'list'
     schedule_each: 128
@@ -61,7 +61,7 @@ sive:
     xing_loss_weight: 0.001
   fg:
     style: "iconography" # 'iconography' ,"pixelart", "sketch", 'painting', 'ink'
-    num_iter: 10
+    num_iter: 50
     num_paths: 256 # number of strokes
     path_schedule: 'repeat' # 'repeat', 'list'
     schedule_each: 128
