@@ -227,7 +227,7 @@ python svgdreamer.py x=ink "prompt='Big Wild Goose Pagoda. ink style. Minimalist
 
 #### 🎨 Supported Styles
 
-**For more examples, visit [Examples.md](https://github.com/ximinng/DiffSketcher/blob/main/Examples.md)**.
+**For more examples, visit [Examples.md](https://github.com/ximinng/SVGDreamer/blob/main/Examples.md)**.
 
 ## 🔑 Tips for Best Results
 
